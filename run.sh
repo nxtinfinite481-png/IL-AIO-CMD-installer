@@ -1,27 +1,50 @@
 #!/bin/bash
 # ==========================================================
-# INFINITE LABS AIO CMD - Public Bootstrap Launcher
+# INFINITE LABS AIO CMD - Main Launcher
 # ==========================================================
 
 INSTALL_DIR="/tmp/infinite-labs-aio"
 
-# Bootstrap Logic: Ensure we have the local repository
-if [ ! -d "${INSTALL_DIR}/.git" ]; then
-    echo -e "\033[1;36m[i] Initializing workspace in ${INSTALL_DIR}...\033[0m"
-    mkdir -p "${INSTALL_DIR}"
-    cd "${INSTALL_DIR}" || exit 1
+if [ ! -d "\/.git" ]; then
+    mkdir -p "\"
+    cd "\" || exit 1
     git clone -q https://github.com/nxtinfinite481-png/IL-AIO-CMD-installer.git .
 else
-    cd "${INSTALL_DIR}" || exit 1
+    cd "\" || exit 1
     git pull -q origin main
 fi
 
-BASE_DIR="${INSTALL_DIR}"
+BASE_DIR="\"
 
-# Launch the actual UI/Menu entry point
-if [ -f "${BASE_DIR}/menu/UI.sh" ]; then
-    bash "${BASE_DIR}/menu/UI.sh"
-else
-    echo -e "\033[0;31m[!] UI entry point not found at ${BASE_DIR}/menu/UI.sh\033[0m"
-    exit 1
-fi
+source "\/menu/UI.sh"
+
+while true; do
+    render_ui
+    echo " 1) VPS / VPS EGG"
+    echo " 2) Panel Manager"
+    echo " 3) Wings Manager"
+    echo " 4) Blueprint Extensions"
+    echo " 5) Themes"
+    echo " 6) Docker Manager"
+    echo " 7) Toolbox"
+    echo " 8) Extras"
+    echo " 9) Setup VM"
+    echo " 0) Exit"
+    echo -e ""
+    read -p " ➜ Select [0-9]: " choice
+
+    case "\" in
+        1) bash "\/panel/pterodactyl/vps/run.sh" ;;
+        2) bash "\/panel/menu.sh" ;;
+        3) bash "\/wings/run.sh" ;;
+        4) bash "\/thame/extension.sh" ;;
+        5) bash "\/thame/thames.sh" ;;
+        6) bash "\/Extras/docker.sh" ;;
+        7) bash "\/toolbox/run.sh" ;;
+        8) bash "\/Extras/run.sh" ;;
+        9) bash "\/setup vm/menu.sh" ;;
+        0) exit 0 ;;
+        *) echo -e "\033[0;31m✘ Invalid option.\033[0m"; sleep 1 ;;
+    esac
+    read -p " Press enter to continue..."
+done
