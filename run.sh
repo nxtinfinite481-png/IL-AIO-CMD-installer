@@ -23,11 +23,11 @@ fi
 
 BASE_DIR="\"
 
-# UI Loading
+# Load UI
 if [ -f "\/menu/UI.sh" ]; then
     source "\/menu/UI.sh"
 else
-    echo -e "\UI module not found!\"
+    echo -e "\UI module not found at \/menu/UI.sh"
     exit 1
 fi
 
@@ -47,7 +47,7 @@ while true; do
     echo -e ""
     read -p " ➜ Select [0-9]: " choice
 
-    case \ in
+    case "\" in
         1) bash "\/panel/pterodactyl/vps/run.sh" ;;
         2) bash "\/panel/menu.sh" ;;
         3) bash "\/wings/run.sh" ;;
