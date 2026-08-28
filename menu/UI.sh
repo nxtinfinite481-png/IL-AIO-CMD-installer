@@ -1,22 +1,28 @@
 #!/bin/bash
 # ==========================================================
-# INFINITE LABS AIO CMD - UI Renderer
+# INFINITE LABS AIO CMD - Professional Dashboard
 # ==========================================================
 
-B_BLUE='\033[1;38;5;33m'
-B_CYAN='\033[1;38;5;51m'
-B_PURPLE='\033[1;38;5;141m'
-B_GREEN='\033[1;38;5;82m'
-B_RED='\033[1;38;5;196m'
-GOLD='\033[38;5;220m'
-W='\033[1;38;5;255m'
-G='\033[0;38;5;244m'
+# Colors
+CYAN='\033[1;36m'
+BLUE='\033[1;34m'
+GREEN='\033[1;32m'
+WHITE='\033[1;37m'
+GRAY='\033[1;30m'
 NC='\033[0m'
 
 render_ui() {
     clear
-    echo -e "    INFINITE LABS AIO CMD    "
-    echo -e "    Modern Management System "
-    echo -e "-----------------------------"
-    echo -e ""
+    # System Status
+    CPU=\
+    MEM=\
+    UPTIME=\
+    
+    echo -e "==============================================================="
+    echo -e "                 INFINITE LABS AIO CMD"
+    echo -e "                    Build. Create. Scale."
+    echo -e "==============================================================="
+    echo -e "SYSTEM STATUS:"
+    echo -e " CPU: \% | RAM: \% | Uptime: \"
+    echo -e "==============================================================="
 }
