@@ -1,30 +1,37 @@
 #!/bin/bash
 # ==========================================================
-# INFINITE LABS AIO CMD - Public Launcher & Bootstrap
+# INFINITE LABS AIO CMD - Public Launcher
 # ==========================================================
 
-# 1. Setup Base Directory
-if [[ "\" == *"/dev/fd/"* ]] || [[ ! -f "run.sh" ]]; then
-    # Running from pipe or outside project directory - bootstrap required
-    INSTALL_DIR="/tmp/infinite-labs-aio"
-    echo -e "\033[1;36m[i] Initializing workspace in \...\033[0m"
+# ANSI Colors
+CYAN='\033[1;36m'
+GREEN='\033[1;32m'
+RED='\033[1;31m'
+NC='\033[0m'
+
+# Bootstrap Logic
+INSTALL_DIR="/tmp/infinite-labs-aio"
+echo -e "\[i] Initializing workspace in \... \"
+
+if [ ! -d "\/.git" ]; then
     mkdir -p "\"
     cd "\" || exit 1
-    
-    # Clone or download if not present
-    if [[ ! -d ".git" ]]; then
-        git clone -q https://github.com/nxtinfinite481-png/IL-AIO-CMD-installer.git .
-    fi
-    BASE_DIR="\"
+    git clone -q https://github.com/nxtinfinite481-png/IL-AIO-CMD-installer.git .
 else
-    # Running from existing clone
-    BASE_DIR="\E:\PROJECTS\IL AIO CMD"
+    cd "\" || exit 1
 fi
 
-# 2. Load UI
-source "\/menu/UI.sh"
+BASE_DIR="\"
 
-# 3. Main Loop
+# UI Loading
+if [ -f "\/menu/UI.sh" ]; then
+    source "\/menu/UI.sh"
+else
+    echo -e "\UI module not found!\"
+    exit 1
+fi
+
+# Main Loop
 while true; do
     render_ui
     echo " 1) VPS / VPS EGG"
@@ -50,8 +57,8 @@ while true; do
         7) bash "\/toolbox/run.sh" ;;
         8) bash "\/Extras/run.sh" ;;
         9) bash "\/setup vm/menu.sh" ;;
-        0) echo "Exiting..."; exit 0 ;;
-        *) echo -e "\033[1;31m✘ Invalid option.\033[0m"; sleep 1 ;;
+        0) exit 0 ;;
+        *) echo -e "\✘ Invalid option."; sleep 1 ;;
     esac
     read -p " Press enter to continue..."
 done
