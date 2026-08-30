@@ -136,5 +136,3 @@ original NOBITA project unless explicitly confirmed.
 ## License
 
 See [LICENSE](LICENSE).
-```
-```
