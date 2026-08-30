@@ -2,7 +2,6 @@
 
 # ===========================================================
 # INFINITE LABS AIO CMD
-# Build. Create. Scale.
 # ===========================================================
 
 # --- COLORS (REFERENCE PALETTE) ---
@@ -54,7 +53,6 @@ render_ui() {
     echo -e "${GOLD}   ██║██║ ╚████║██║     ██║██║ ╚████║██║   ██║   ███████╗${NC}"
     echo -e "${GOLD}   ╚═╝╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚══════╝${NC}"
     echo -e "                    ${G}INFINITE LABS AIO CMD${NC}"
-    echo -e "                    ${G}Build. Create. Scale.${NC}"
     echo -e " ${G}────────────────────────────────────────────────────────────────────────${NC}"
     echo -e " ${W}◉ SYSTEM STATUS${NC}"
     printf "   ${G}CPU:${NC} ${B_CYAN}%3s%%${NC}   ${G}RAM:${NC} ${B_PURPLE}%3s%%${NC}   ${G}Network:${NC} ${B_GREEN}● READY${NC}\n" "$CPU" "$RAM"

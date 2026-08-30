@@ -1,10 +1,8 @@
 # INFINITE LABS AIO CMD
 
-**Build. Create. Scale.**
-
 INFINITE LABS AIO CMD is a terminal-based administration toolkit for Linux VPS
-servers running Pterodactyl-compatible panels, Wings nodes, Blueprint themes
-and extensions, and common server utilities.
+servers running Pterodactyl-compatible panels, PufferPanel, Wings nodes,
+Blueprint themes and extensions, and common server utilities.
 
 ## Quick start
 
@@ -22,7 +20,7 @@ on the caller's current working directory.
 
 - VPS and VM setup modules
 - Pterodactyl, Reviactyl, Paymenter, Jexactyl, Convoy, MythicalDash, PteroCA,
-  and WHMCS installer routes where their local modules are present
+  WHMCS, and PufferPanel routes where their local modules are present
 - Pterodactyl Wings installation, configuration, database, and management
   tools
 - 20 packaged Blueprint themes
@@ -47,6 +45,9 @@ on the caller's current working directory.
   the target application's environment after installation.
 - Blueprint assets are packaged locally so the menu does not silently execute a
   remote payload.
+- The PufferPanel module uses the official package repository and systemd
+  service. It does not remove sudo, replace system binaries, or embed
+  administrator credentials.
 
 ## Verification
 
@@ -60,6 +61,25 @@ The menu and local routing can be inspected without performing VPS
 installation. Full panel, Wings, VM, package, and certificate flows require a
 real supported Linux VPS and are therefore not tested in a development
 workspace.
+
+## Inspiration & Attribution
+
+INFINITE LABS AIO CMD is an independent project inspired by the architecture,
+concept, and functionality of the NOBITA All-in-One CMD project. NOBITA was
+used as a reference for understanding the overall server-management concept and
+module organization. INFINITE LABS is not affiliated with, sponsored by, or
+endorsed by the original NOBITA project unless explicitly confirmed.
+
+The PufferPanel integration was implemented for this project using the
+official PufferPanel package-repository and systemd workflow. The referenced
+third-party installation script was consulted for functional intent only; its
+unsafe operations were not copied.
+
+PufferPanel, Pterodactyl, Wings, Blueprint, themes, extensions, and all other
+third-party projects and tools remain the property of their respective authors.
+Their individual licenses and attribution requirements must be respected.
+The repository's CC0 notice applies only to material for which the project
+author has the relevant rights; it does not override third-party licenses.
 
 ## License
 

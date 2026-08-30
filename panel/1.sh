@@ -56,8 +56,9 @@ panel_menu() {
         echo -e "  ${GRAY}│${NC} ${PURPLE}[1]${NC} Pterodactyl          ${GRAY}│${NC} ${PURPLE}[5]${NC}  Convoy installer    ${GRAY}│${NC}"
         echo -e "  ${GRAY}│${NC} ${PURPLE}[2]${NC} Reviactyl             ${GRAY}│${NC} ${PURPLE}[6]${NC}  Jexactyl installer  ${GRAY}│${NC}"
         echo -e "  ${GRAY}│${NC} ${PURPLE}[3]${NC} Paymenter             ${GRAY}│${NC} ${PURPLE}[7]${NC}  PteroCA installer   ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${PURPLE}[4]${NC} MythicalDash          ${GRAY}│${NC} ${PURPLE}[8]${NC}  WHMC installer      ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${RED}[0]${NC} Back                 ${GRAY}│${NC}                          │${NC}"
+         echo -e "  ${GRAY}│${NC} ${PURPLE}[4]${NC} MythicalDash          ${GRAY}│${NC} ${PURPLE}[8]${NC}  WHMC installer      ${GRAY}│${NC}"
+         echo -e "  ${GRAY}│${NC} ${PURPLE}[9]${NC} PufferPanel           ${GRAY}│${NC}                          │${NC}"
+         echo -e "  ${GRAY}│${NC} ${RED}[0]${NC} Back                 ${GRAY}│${NC}                          │${NC}"
         echo -e "  ${GRAY}└──────────────────────────┴──────────────────────────┘${NC}"
         echo
         echo -ne "  ${CYAN}λ${NC} ${WHITE}Select Module [0-8]:${NC} "
@@ -72,6 +73,7 @@ panel_menu() {
             6) echo -e "  ${CYAN}➜ Executing Jexactyl installer...${NC}"; run_panel "panel/Jexactyl/install.sh" ;;
             7) echo -e "  ${CYAN}➜ Executing PteroCA installer...${NC}"; run_panel "panel/pteroca/install.sh" ;;
             8) echo -e "  ${CYAN}➜ Executing WHMC installer...${NC}"; run_panel "panel/whmc/install.sh" ;;
+            9) echo -e "  ${CYAN}➜ Executing PufferPanel manager...${NC}"; run_panel "panel/pufferpanel/run.sh" ;;
             0) echo -e "\n  ${RED}Returning to the main console.${NC}"; exit 0 ;;
             *) echo -e "  ${RED}⚠ Invalid Selection${NC}"; sleep 1 ;;
         esac
