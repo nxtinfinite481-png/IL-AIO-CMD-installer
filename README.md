@@ -71,17 +71,6 @@ used as a reference for understanding the overall server-management concept and
 module organization. INFINITE LABS is not affiliated with, sponsored by, or
 endorsed by the original NOBITA project unless explicitly confirmed.
 
-The PufferPanel integration was implemented for this project using the
-official PufferPanel package-repository and systemd workflow. The referenced
-third-party installation script was consulted for functional intent only; its
-unsafe operations were not copied.
-
-PufferPanel, Pterodactyl, Wings, Blueprint, themes, extensions, and all other
-third-party projects and tools remain the property of their respective authors.
-Their individual licenses and attribution requirements must be respected.
-The repository's CC0 notice applies only to material for which the project
-author has the relevant rights; it does not override third-party licenses.
-
 ## License
 
 See [LICENSE](LICENSE).

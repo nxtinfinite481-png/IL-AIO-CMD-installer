@@ -43,8 +43,8 @@ render_ui() {
     clear 2>/dev/null || true
     get_metrics
 
-    echo -e " ${B_BLUE}${NC}${BG_SHADE}${W} Host ${CURRENT_HOST} ${NC}${B_BLUE}${NC}  ${B_PURPLE}${NC}${BG_SHADE}${W} Uptime ${UPT} ${NC}${B_PURPLE}${NC}"
-    echo -e " ${B_GREEN}${NC}${BG_SHADE}${W} Disk ${DISK} ${NC}${B_GREEN}${NC}  ${B_CYAN}${NC}${BG_SHADE}${W} CPU ${CPU}%  RAM ${RAM}% ${NC}${B_CYAN}${NC}"
+    printf " ${B_BLUE}[${NC}${BG_SHADE}${W} Host: %-20s ${NC}${B_BLUE}]${NC}  ${B_PURPLE}[${NC}${BG_SHADE}${W} Uptime: %-18s ${NC}${B_PURPLE}]${NC}\n" "$CURRENT_HOST" "$UPT"
+    printf " ${B_GREEN}[${NC}${BG_SHADE}${W} Disk: %-20s ${NC}${B_GREEN}]${NC}  ${B_CYAN}[${NC}${BG_SHADE}${W} CPU: %s%%  RAM: %s%% ${NC}${B_CYAN}]${NC}\n" "$DISK" "$CPU" "$RAM"
     echo
     echo -e "${B_CYAN}   ██╗███╗   ██╗███████╗██╗███╗   ██╗██╗████████╗███████╗${NC}"
     echo -e "${B_CYAN}   ██║████╗  ██║██╔════╝██║████╗  ██║██║╚══██╔══╝██╔════╝${NC}"
@@ -54,18 +54,22 @@ render_ui() {
     echo -e "${B_CYAN}   ╚═╝╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚══════╝${NC}"
     echo -e "                    ${B_BLUE}INFINITE LABS AIO CMD${NC}"
     echo -e " ${G}────────────────────────────────────────────────────────────────────────${NC}"
-    echo -e " ${W}◉ SYSTEM STATUS${NC}"
-    printf "   ${G}CPU:${NC} ${B_CYAN}%3s%%${NC}   ${G}RAM:${NC} ${B_PURPLE}%3s%%${NC}   ${G}Network:${NC} ${B_GREEN}● READY${NC}\n" "$CPU" "$RAM"
+    echo -e " ${W}SYSTEM STATUS${NC}"
+    printf "   ${G}CPU:${NC} ${B_CYAN}%3s%%${NC}   ${G}RAM:${NC} ${B_PURPLE}%3s%%${NC}   ${G}Network:${NC} ${B_GREEN}READY${NC}\n" "$CPU" "$RAM"
     echo
-    echo -e " ${B_CYAN} CORE SERVICES${NC}"
+    echo -e " ${B_CYAN}CORE SERVICES${NC}"
     echo -e " ${G}├─${NC} ${W}[1]${NC} VPS / VM Setup       ${G}├─${NC} ${W}[4]${NC} Toolbox"
     echo -e " ${G}├─${NC} ${W}[2]${NC} Panels               ${G}├─${NC} ${W}[5]${NC} Blueprint Themes"
     echo -e " ${G}└─${NC} ${W}[3]${NC} Wings / Node         ${G}└─${NC} ${W}[6]${NC} Extras"
     echo
-    echo -e " ${B_PURPLE} MAINTENANCE${NC}"
+    echo -e " ${B_PURPLE}MAINTENANCE${NC}"
     echo -e " ${G}└─${NC} ${B_RED}[0]${NC} Exit"
+    echo
+    echo -e " ${B_CYAN}TECHNOLOGY STACK${NC}"
+    printf "  ${B_BLUE}[ Bash ]${NC}  ${B_BLUE}[ Linux ]${NC}  ${B_BLUE}[ cURL ]${NC}  ${B_BLUE}[ Python 3 ]${NC}\n"
+    printf "  ${B_BLUE}[ QEMU/KVM ]${NC}  ${B_BLUE}[ systemd ]${NC}  ${B_BLUE}[ Nginx ]${NC}  ${B_BLUE}[ MariaDB ]${NC}\n"
     echo -e " ${G}────────────────────────────────────────────────────────────────────────${NC}"
-    echo -ne " ${B_CYAN}➜${NC} ${W}Enter Option${NC} ${G}(0-6):${NC} "
+    echo -ne " ${B_CYAN}>>${NC} ${W}Enter Option${NC} ${G}(0-6):${NC} "
 }
 
 while true; do
@@ -80,7 +84,7 @@ while true; do
         5) run_module "thame/run.sh" ;;
         6) run_module "Extras/run.sh" ;;
         0|exit|quit)
-            echo -e "\n ${B_RED}● DISCONNECTED${NC}  Goodbye, INFINITE LABS."
+            echo -e "\n ${B_RED}DISCONNECTED${NC}  Goodbye, INFINITE LABS."
             exit 0
             ;;
         *)
