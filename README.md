@@ -1,4 +1,3 @@
-````markdown
 # INFINITE LABS AIO CMD
 
 <p align="center">
