@@ -28,6 +28,17 @@ on the caller's current working directory.
 - 66 packaged Blueprint extensions
 - Cockpit, CasaOS, 1Panel, Docker, LVM, networking, terminal, and system tools
 
+## Technology Stack
+
+- Bash
+- Linux
+- cURL
+- Python 3
+- QEMU/KVM
+- systemd
+- Nginx
+- MariaDB
+
 ## Requirements
 
 - A clean Ubuntu or Debian Linux VPS for installation modules

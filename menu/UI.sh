@@ -62,12 +62,9 @@ render_ui() {
     echo -e " ${G}├─${NC} ${W}[2]${NC} Panels               ${G}├─${NC} ${W}[5]${NC} Blueprint Themes"
     echo -e " ${G}└─${NC} ${W}[3]${NC} Wings / Node         ${G}└─${NC} ${W}[6]${NC} Extras"
     echo
-    echo -e " ${B_PURPLE}MAINTENANCE${NC}"
+    echo -e " ${B_PURPLE}SYSTEM${NC}"
     echo -e " ${G}└─${NC} ${B_RED}[0]${NC} Exit"
     echo
-    echo -e " ${B_CYAN}TECHNOLOGY STACK${NC}"
-    printf "  ${B_BLUE}[ Bash ]${NC}  ${B_BLUE}[ Linux ]${NC}  ${B_BLUE}[ cURL ]${NC}  ${B_BLUE}[ Python 3 ]${NC}\n"
-    printf "  ${B_BLUE}[ QEMU/KVM ]${NC}  ${B_BLUE}[ systemd ]${NC}  ${B_BLUE}[ Nginx ]${NC}  ${B_BLUE}[ MariaDB ]${NC}\n"
     echo -e " ${G}────────────────────────────────────────────────────────────────────────${NC}"
     echo -ne " ${B_CYAN}>>${NC} ${W}Enter Option${NC} ${G}(0-6):${NC} "
 }
