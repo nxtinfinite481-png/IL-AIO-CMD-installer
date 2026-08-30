@@ -14,6 +14,7 @@ CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 BOLD='\033[1m'
 NC='\033[0m'
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # --- UI HELPER FUNCTIONS ---
 
@@ -49,8 +50,7 @@ install_ptero() {
     status_msg "INFO" "Initiating installation script..."
     sleep 1
     
-    # Run the external script
-    bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/reviactyl/install.sh)
+    bash "$BASE_DIR/panel/reviactyl/install.sh"
     
     echo ""
     status_msg "OK" "Installation Sequence Complete."
@@ -268,4 +268,3 @@ echo -e "${PURPLE}                                                              
         *) echo -e "${RED}  Invalid option selected...${NC}"; sleep 1 ;;
     esac
 done
-

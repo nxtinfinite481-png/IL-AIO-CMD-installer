@@ -1,275 +1,66 @@
 # INFINITE LABS AIO CMD
 
-**All-in-one VPS, panel, server, and system management toolkit.**
+**Build. Create. Scale.**
 
-INFINITE LABS AIO CMD is a terminal-based toolkit designed to simplify VPS and server management through a centralized interactive CLI.
+INFINITE LABS AIO CMD is a terminal-based administration toolkit for Linux VPS
+servers running Pterodactyl-compatible panels, Wings nodes, Blueprint themes
+and extensions, and common server utilities.
 
----
+## Quick start
 
-## Overview
-
-INFINITE LABS AIO CMD brings multiple server-management utilities, hosting panels, Pterodactyl tools, Wings/Node management, Docker utilities, themes, extensions, and additional system tools into one organized terminal interface.
-
-The project is designed to make common server deployment and management tasks easier to access from a single CLI.
-
----
-
-## Features
-
-### Core
-
-- Interactive CLI dashboard
-- Centralized module navigation
-- System status information
-- CPU and RAM usage monitoring
-- Modular menu structure
-- VPS/server management utilities
-- Independent project structure
-
-### Panel Management
-
-The toolkit includes modules for multiple hosting and server-management panels:
-
-- **Pterodactyl**
-  - Panel installation and management
-  - VPS utilities
-  - phpMyAdmin utilities
-  - SSL utilities
-  - Additional Pterodactyl tools
-
-- **PufferPanel**
-  - PufferPanel installation and management
-
-- **Mythical**
-  - Mythical panel deployment utilities
-
-- **Paymenter**
-  - Paymenter deployment utilities
-
-- **Jexactyl**
-  - Jexactyl deployment utilities
-
-- **Convoy**
-  - Convoy deployment utilities
-
-- **Pteroca**
-  - Pteroca deployment utilities
-
-- **Reviactyl**
-  - Reviactyl deployment utilities
-
-- **WHMC**
-  - WHMC deployment utilities
-
-### Wings / Node
-
-Dedicated utilities for Pterodactyl Wings/Node management, including installation and configuration-related functionality.
-
-### Docker
-
-Docker-related utilities for managing container-based server environments.
-
-### Toolbox
-
-The Toolbox section provides additional server and networking utilities, including:
-
-- Cloudflare utilities
-- System information
-- Localtonet
-- Root utilities
-- Tailscale
-- ZeroTier
-- Terminal utilities
-
-### Extras
-
-Additional server utilities including:
-
-- CasaOS
-- Cockpit
-- cPanel
-- LVM
-
-### Setup VM
-
-Includes VM/VPS setup utilities and deployment templates for supported environments.
-
----
-
-## Themes & Blueprint
-
-INFINITE LABS AIO CMD includes a collection of Blueprint resources for Pterodactyl.
-
-- **66 Blueprint Extensions**
-- **20 Blueprint Themes**
-
-These resources are organized inside the project's theme management system.
-
----
-
-## Supported Panels
-
-| Panel | Included | Purpose |
-|---|---|---|
-| Pterodactyl | Yes | Game server and node management |
-| PufferPanel | Yes | Game server management |
-| Mythical | Yes | Server management |
-| Paymenter | Yes | Hosting billing and invoicing |
-| Jexactyl | Yes | Hosting management |
-| Convoy | Yes | Server management |
-| Pteroca | Yes | Panel management |
-| Reviactyl | Yes | Panel management |
-| WHMC | Yes | Billing and automation |
-
----
-
-## Quick Start
-
-Run the following command on your VPS/server:
+Run the public launcher from any directory:
 
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/nxtinfinite481-png/IL-AIO-CMD-installer/main/run.sh)
 ```
 
-The launcher starts the INFINITE LABS AIO CMD interface and provides access to the available modules.
+The launcher uses the local checkout when available. Otherwise it downloads a
+temporary copy of this repository and starts the main menu without depending
+on the caller's current working directory.
 
----
+## Included
 
-## Usage
-
-After launching the toolkit, use the interactive menu to select the required module.
-
-Typical workflow:
-
-```text
-Launch AIO CMD
-      ↓
-Main Menu
-      ↓
-Select Module
-      ↓
-Select Tool / Panel
-      ↓
-Configure
-      ↓
-Install / Manage
-```
-
-The exact options available depend on the current project modules.
-
----
-
-## Project Structure
-
-```text
-INFINITE-LABS/
-├── Extras/
-├── menu/
-├── panel/
-├── setup vm/
-├── thame/
-├── toolbox/
-├── wings/
-├── docker.sh
-├── run.sh
-└── ui.sh
-```
-
-### Main Directories
-
-| Directory | Description |
-|---|---|
-| `panel/` | Hosting panel installation and management modules |
-| `wings/` | Wings / Node utilities |
-| `thame/` | Blueprint themes and extensions |
-| `toolbox/` | Server and networking utilities |
-| `Extras/` | Additional server utilities |
-| `setup vm/` | VM/VPS setup utilities |
-| `menu/` | Menu and interface components |
-
----
+- VPS and VM setup modules
+- Pterodactyl, Reviactyl, Paymenter, Jexactyl, Convoy, MythicalDash, PteroCA,
+  and WHMCS installer routes where their local modules are present
+- Pterodactyl Wings installation, configuration, database, and management
+  tools
+- 20 packaged Blueprint themes
+- 66 packaged Blueprint extensions
+- Cockpit, CasaOS, 1Panel, Docker, LVM, networking, terminal, and system tools
 
 ## Requirements
 
-General requirements:
+- A clean Ubuntu or Debian Linux VPS for installation modules
+- Root access for system and panel installers
+- A domain pointed at the server for web panels and Let's Encrypt
+- At least 2 GB RAM; 4 GB or more is recommended for panel workloads
+- Internet access for official package and project downloads
 
-- Linux VPS or server
-- Internet connection
-- Bash-compatible environment
-- Root or appropriate administrative privileges for system-level operations
+## Safety and credentials
 
-Individual modules may have additional requirements depending on the software being installed.
+- Installation modules are destructive system-administration tools. Review the
+  selected module before running it on a production server.
+- Database credentials are generated securely by default or requested from the
+  operator; this project does not provide shared panel passwords.
+- SMTP credentials are intentionally not embedded. Configure mail settings in
+  the target application's environment after installation.
+- Blueprint assets are packaged locally so the menu does not silently execute a
+  remote payload.
 
-Supported operating systems may vary between modules.
+## Verification
 
----
-
-## Security
-
-INFINITE LABS AIO CMD is maintained with a focus on clean and reviewable shell scripts.
-
-The project has been checked for:
-
-- Hardcoded credentials
-- Legacy branding
-- Unnecessary hidden persistence
-- Suspicious legacy remote execution
-- Broken internal paths
-- Shell syntax issues
-
-However, **always review scripts before executing them on a production server**.
-
-You are responsible for understanding and approving any commands executed on your system.
-
----
-
-## Independence
-
-INFINITE LABS AIO CMD is maintained as an independent project.
-
-The project structure, branding, launcher, and modules are maintained under the **INFINITE LABS** identity.
-
----
-
-## Contributing
-
-Contributions are welcome.
-
-Basic workflow:
+Run shell syntax checks from the project root:
 
 ```bash
-git clone https://github.com/nxtinfinite481-png/IL-AIO-CMD-installer.git
-cd IL-AIO-CMD-installer
+find . -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
 ```
 
-Create a branch, make your changes, test them on a safe environment, and submit a pull request.
+The menu and local routing can be inspected without performing VPS
+installation. Full panel, Wings, VM, package, and certificate flows require a
+real supported Linux VPS and are therefore not tested in a development
+workspace.
 
-Please test shell scripts before submitting changes.
+## License
 
----
-
-## Disclaimer
-
-INFINITE LABS AIO CMD is provided for server administration and deployment purposes.
-
-Some modules can install, modify, or configure system-level software. Always review the source code and test changes in a non-production environment before using them on important infrastructure.
-
-INFINITE LABS AIO CMD is not officially affiliated with the third-party panels, software, themes, or extensions referenced by the project.
-
----
-
-## Repository
-
-**GitHub:**
-
-https://github.com/nxtinfinite481-png/IL-AIO-CMD-installer
-
----
-
-<p align="center">
-
-**INFINITE LABS**
-
-*Build. Create. Scale.*
-
-</p>
+See [LICENSE](LICENSE).

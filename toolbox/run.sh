@@ -14,12 +14,25 @@ CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 GRAY='\033[1;30m'
 NC='\033[0m'
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # --- HELPER FUNCTIONS ---
 pause() {
     echo ""
     read -n 1 -s -r -p "Press any key to continue..."
     echo ""
+}
+
+run_tool() {
+    local relative_path="$1"
+    local tool_path="${BASE_DIR}/${relative_path}"
+    if [[ ! -f "$tool_path" ]]; then
+        echo -e "${RED}Tool unavailable: ${relative_path}${NC}"
+        pause
+        return 1
+    fi
+    bash "$tool_path"
+    pause
 }
 
 # --- HEADER UI ---
@@ -67,8 +80,6 @@ tools_menu() {
         # -- SECTION 3 --
         echo -e "${PURPLE}  [ GUI & TERMINAL ]${NC}"
         echo -e "  ${GREEN}7)${NC} Web Terminal        ${GRAY}:: Browser Shell${NC}"
-        echo -e "  ${GREEN}8)${NC} RDP Installer       ${GRAY}:: Remote Desktop${NC}"
-        echo -e "  ${GREEN}9)${NC} SSL Panel           ${GRAY}:: SSL Setup${NC}"
         echo ""
 
         # -- FOOTER --
@@ -82,51 +93,34 @@ tools_menu() {
         echo -ne "${GREEN}➜ ${CYAN}Select Tool ${GRAY}[0-9]${CYAN} » ${NC}"
         read t
 
-        case $t in
+        case "$t" in
             1)
                 echo -e "\n${YELLOW}⚙ Running Root Access Script...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/tools/root.sh)
-                pause ;;
+                run_tool "toolbox/root.sh" ;;
 
             2)
                 echo -e "\n${YELLOW}⚙ Running Tailscale Installer...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/tools/tailscale.sh)
-                pause ;;
+                run_tool "toolbox/tailscale.sh" ;;
 
             3)
                 echo -e "\n${YELLOW}⚙ Running Zerotier Installer...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/tools/zerotier.sh)
-                pause ;;
+                run_tool "toolbox/zerotier.sh" ;;
 
             4)
                 echo -e "\n${YELLOW}⚙ Running Cloudflare Script...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/tools/cloudflare.sh)
-                pause ;;
+                run_tool "toolbox/cloudflare.sh" ;;
 
             5)
                 echo -e "\n${YELLOW}⚙ Fetching System Info...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/tools/info.sh)
-                pause ;;
+                run_tool "toolbox/info.sh" ;;
 
             6)
                 echo -e "\n${YELLOW}⚙ Running Port Forward Tool...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/tools/localtonet.sh)
-                pause ;;
+                run_tool "toolbox/localtonet.sh" ;;
 
             7)
                 echo -e "\n${YELLOW}⚙ Installing Web Terminal...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/tools/terminal.sh)
-                pause ;;
-
-            8)
-                echo -e "\n${YELLOW}⚙ Installing RDP...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/The-Coding-Hub/refs/heads/main/srv/tools/rdp.sh)
-                pause ;;
-
-            9)
-                echo -e "\n${YELLOW}⚙ Installing SSL Panel...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/hub/refs/heads/main/Codinghub/toolbox/mengssl.sh)
-                pause ;;
+                run_tool "toolbox/terminal.sh" ;;
 
             0)
                 clear
@@ -142,4 +136,3 @@ tools_menu() {
 
 # --- RUN ---
 tools_menu
-

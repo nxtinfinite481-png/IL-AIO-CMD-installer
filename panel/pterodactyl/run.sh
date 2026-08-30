@@ -14,6 +14,7 @@ CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 BOLD='\033[1m'
 NC='\033[0m'
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 GOLD='\033[0;33m'
 GRAY='\033[0;90m'
 
@@ -51,8 +52,7 @@ install_ptero() {
     status_msg "INFO" "Initiating installation script..."
     sleep 1
     
-    # Run the external script
-    bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/pterodactyl/install.sh)
+    bash "$BASE_DIR/panel/pterodactyl/install.sh"
     
     echo ""
     status_msg "OK" "Installation Sequence Complete."
@@ -179,9 +179,9 @@ ask() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     read input
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -193,13 +193,13 @@ ask_timeout() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     if ! read -t 10 input; then
         echo -e "\n  ${GOLD}⌛ Timeout — using default: ${WHITE}$default${NC}"
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
         return
     fi
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -240,7 +240,7 @@ select_version() {
 
     if [[ ${#tags[@]} -eq 0 ]]; then
         echo -e "  ${YELLOW}No versions found. Using latest.${NC}"
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
         return
     fi
 
@@ -249,19 +249,19 @@ select_version() {
     echo -ne "\n  ${PURPLE}•${NC} ${WHITE}Select version [1-$max]${NC} ${GRAY}[1 = latest]${NC}\n  ${GRAY}╰─>${NC} "
     if ! read -t 10 choice; then
         echo -e "\n  ${GOLD}⌛ Timeout — using latest: ${WHITE}${tags[0]}${NC}"
-        eval "$var_name=\"${tags[0]}\""
+        printf -v "$var_name" '%s' "${tags[0]}"
         return
     fi
     if [[ -z "$choice" || "$choice" == "1" ]]; then
         echo -e "  ${GREEN}→ ${WHITE}${tags[0]}${NC}"
-        eval "$var_name=\"${tags[0]}\""
+        printf -v "$var_name" '%s' "${tags[0]}"
     elif [[ "$choice" =~ ^[0-9]+$ ]] && [[ $choice -ge 1 ]] && [[ $choice -le $max ]]; then
         local idx=$((choice - 1))
         echo -e "  ${GREEN}→ ${WHITE}${tags[$idx]}${NC}"
-        eval "$var_name=\"${tags[$idx]}\""
+        printf -v "$var_name" '%s' "${tags[$idx]}"
     else
         echo -e "  ${GREEN}→ ${WHITE}${tags[0]}${NC} (invalid input)"
-        eval "$var_name=\"${tags[0]}\""
+        printf -v "$var_name" '%s' "${tags[0]}"
     fi
 }
 
@@ -372,13 +372,10 @@ while true; do
         1) install_ptero ;;
         2) create_user ;;
         3) update_panel ;;
-        4) bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/pterodactyl/ssl.sh) ;;
+        4) bash "$BASE_DIR/panel/pterodactyl/ssl.sh" ;;
         5) uninstall_ptero ;;
-        6) bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/pterodactyl/phpMyAdmin.sh) ;;
+        6) bash "$BASE_DIR/panel/pterodactyl/phpMyAdmin.sh" ;;
         0) clear; exit ;;
         *) echo -e "${RED}  Invalid option selected...${NC}"; sleep 1 ;;
     esac
 done
-
-
-

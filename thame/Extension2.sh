@@ -14,7 +14,7 @@ W="\e[97m"; N="\e[0m"
 BR="\e[1;31m"; BG="\e[1;32m"; BY="\e[1;33m"
 BM="\e[1;35m"; BC="\e[1;36m"; BW="\e[1;97m"
 
-EXT_PATH="./thame/Extension"
+readonly ASSET_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/Extension" && pwd)"
 selected_indices=()
 
 trap 'echo -e "\n${R}[!] Force exit detected.${N}"; exit 1' SIGINT
@@ -64,15 +64,19 @@ run_blueprint() {
     cd /var/www/pterodactyl || exit 1
     if [[ "$ACTION" == "install" ]]; then
         echo -e "${G}📥 Installing ${NAME%.blueprint}...${N}"
-        wget -q "$URL/$NAME" -O "$NAME"
-        [[ -s "$NAME" ]] && yes | blueprint -i "$NAME" && rm -f "$NAME"
+        if [[ -s "$ASSET_DIR/$NAME" ]]; then
+            cp "$ASSET_DIR/$NAME" "$NAME"
+            yes | blueprint -i "$NAME" && rm -f "$NAME"
+        else
+            echo -e "${R}Missing packaged extension: $NAME${N}"
+        fi
     else
         echo -e "${R}🗑️ Removing ${NAME%.blueprint}...${N}"
         yes | blueprint -r "${NAME%.blueprint}"
     fi
 }
 
-get_title() { echo 'ICAgICAg44CCIOKAjCDigJMgTm9iaXRhLmRldiBDT05UUk9MIEhVQiDigJMg44CCICAgICAg' | base64 -d; }
+get_title() { echo "INFINITE LABS • BLUEPRINT EXTENSIONS"; }
 
 # ==========================================
 # 📋 MENU
@@ -163,4 +167,3 @@ while true; do
             ;;
     esac
 done
-

@@ -87,4 +87,3 @@ echo -e "\n${G}═════════════════════�
 echo -e "${G}   🎉 INSTALLATION COMPLETE!${N}"
 echo -e "${W}   Blueprint Framework is now active on your panel.${N}"
 echo -e "${G}══════════════════════════════════════════════════════${N}"
-

@@ -74,9 +74,13 @@ echo -ne "  ${GRAY}├─ Username${NC} ${WHITE}(default: admin)${NC}${GRAY}:${N
 read USERNAME
 USERNAME=${USERNAME:-admin}
 
-echo -ne "  ${GRAY}└─ Password${NC} ${WHITE}(default: admin)${NC}${GRAY}:${NC} "
-read PASSWORD
-PASSWORD=${PASSWORD:-admin}
+echo -ne "  ${GRAY}└─ Password${NC} ${WHITE}(required)${NC}${GRAY}:${NC} "
+read -r -s PASSWORD
+echo
+if [[ -z "$PASSWORD" ]]; then
+    echo -e "  ${RED}Password cannot be empty.${NC}"
+    exit 1
+fi
 
 # --- EXECUTION DASHBOARD ---
 echo -e "\n${PURPLE}┌──────────────────────────────────────────────────────────┐${NC}"
@@ -157,7 +161,7 @@ chmod -R 755 storage/* bootstrap/cache/
 
 DB_NAME=jexactyl
 DB_USER=jexactyl
-DB_PASS=jexactyl
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 mariadb -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';"
 mariadb -e "CREATE DATABASE ${DB_NAME};"
 mariadb -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1' WITH GRANT OPTION;"
@@ -305,14 +309,12 @@ sed -i "s|APP_TIMEZONE=.*|APP_TIMEZONE=${TIMEZONE}|g" .env
 sed -i "s|MAIL_MAILER=.*|MAIL_MAILER=smtp|g" .env
 sed -i "s|MAIL_HOST=.*|MAIL_HOST=smtp.zoho.in|g" .env
 sed -i "s|MAIL_PORT=.*|MAIL_PORT=587|g" .env
-sed -i "s|MAIL_USERNAME=.*|MAIL_USERNAME=free.mell@aiomarket.online|g" .env
-sed -i "s|MAIL_PASSWORD=.*|MAIL_PASSWORD=58@S5wZuWtpdDDX|g" .env
+# SMTP credentials are intentionally left for the operator to configure in .env.
 sed -i "s|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|g" .env
-sed -i "s|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=free.mell@aiomarket.online|g" .env
-sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="Infinite Labs Cloud"|g' .env
+# Configure MAIL_FROM_ADDRESS in .env when SMTP is enabled.
+sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="INFINITE LABS"|g' .env
 sed -i '/RECAPTCHA_ENABLED=/d' .env && echo 'RECAPTCHA_ENABLED=false' >> .env && sed -i '/RECAPTCHA_SITE_KEY=/d' .env && sed -i '/RECAPTCHA_SECRET_KEY=/d' .env && php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan config:cache
-sed -i '/APP_NAME=/d' .env && echo 'APP_NAME="Infinite Labs Cloud"' >> .env && php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan config:cache && systemctl restart pteroq && systemctl restart nginx
+sed -i '/APP_NAME=/d' .env && echo 'APP_NAME="INFINITE LABS"' >> .env && php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan config:cache && systemctl restart pteroq && systemctl restart nginx
 chown -R www-data:www-data /var/www/jexactyl/*
 php artisan p:location:make --short=IN --long="India"
-php artisan p:user:make -n --email=admin@gmail.com --username=${USERNAME} --password=$PASSWORD --admin=1 --name-first=My --name-last=Admin
-
+php artisan p:user:make -n --email="${EMAIL:-admin@example.com}" --username="${USERNAME}" --password="$PASSWORD" --admin=1 --name-first=Admin --name-last=User

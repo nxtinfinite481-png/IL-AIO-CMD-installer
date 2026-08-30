@@ -64,9 +64,9 @@ ask() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     read input
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -74,7 +74,7 @@ ask() {
 show_banner
 
 # --- DATA COLLECTION ---
-ask "Panel Domain" "phpmyadmin.Infinite Labs.indevs.in" DOMAIN
+ask "Panel Domain" "phpmyadmin.example.com" DOMAIN
 ask "Admin Name"   "phpmyadmin" DB_NAME
 ask "Admin User"   "phpmyadmin" DB_USER
 ask "Admin Pass"   "phpmyadmin" DB_PASS
@@ -311,6 +311,4 @@ echo -e "  ${GOLD}│${NC} ${GRAY}User:${NC}     $DB_USER"
 echo -e "  ${GOLD}│${NC} ${GRAY}Pass:${NC}     $DB_USER"
 echo -e "\n  ${PURPLE}Enjoy your new Pterodactyl Panel!${NC}"
 echo -e "${HEADER_LINE}"
-
-
 

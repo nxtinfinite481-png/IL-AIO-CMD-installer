@@ -50,9 +50,9 @@ ask() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     read input
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -60,10 +60,15 @@ ask() {
 show_banner
 
 # --- DATA COLLECTION ---
-ask "Panel Domain" "panel.Infinite Labs.indevs.in" DOMAIN
-ask "Admin Email" "admin@gmail.com" EMAIL
+ask "Panel Domain" "panel.example.com" DOMAIN
+ask "Admin Email" "admin@example.com" EMAIL
 ask "Admin Username" "admin" USERNAME
-ask "Admin Password" "admin" PASSWORD
+read -r -s -p "  Admin Password (required): " PASSWORD
+echo
+if [[ -z "$PASSWORD" ]]; then
+    echo "Admin password cannot be empty." >&2
+    exit 1
+fi
 
 # --- FINAL VALIDATION LOOP ---
 echo -e "\n  ${GOLD}┌─[ REVIEW CONFIGURATION ]${NC}"
@@ -138,7 +143,7 @@ chmod -R 755 storage/* bootstrap/cache/
 # --- MariaDB Setup ---
 DB_NAME=reviactyl
 DB_USER=reviactyl
-DB_PASS=reviactyl
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 mariadb -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';"
 mariadb -e "CREATE DATABASE ${DB_NAME};"
 mariadb -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1' WITH GRANT OPTION;"
@@ -247,7 +252,7 @@ echo "APP_ENVIRONMENT_ONLY=false" >> .env
 sed -i '/RECAPTCHA_ENABLED=/d' .env
 echo 'RECAPTCHA_ENABLED=false' >> .env
 sed -i '/APP_NAME=/d' .env
-echo 'APP_NAME="Infinite Labs Cloud"' >> .env
+echo 'APP_NAME="INFINITE LABS"' >> .env
 TIMEZONE=$(timedatectl show --property=Timezone --value 2>/dev/null || echo "UTC")
 sed -i "s|APP_TIMEZONE=.*|APP_TIMEZONE=${TIMEZONE}|g" .env
 
@@ -255,11 +260,8 @@ sed -i "s|APP_TIMEZONE=.*|APP_TIMEZONE=${TIMEZONE}|g" .env
 sed -i "s|MAIL_MAILER=.*|MAIL_MAILER=smtp|g" .env
 sed -i "s|MAIL_HOST=.*|MAIL_HOST=smtp.zoho.in|g" .env
 sed -i "s|MAIL_PORT=.*|MAIL_PORT=587|g" .env
-sed -i "s|MAIL_USERNAME=.*|MAIL_USERNAME=free.mell@aiomarket.online|g" .env
-sed -i "s|MAIL_PASSWORD=.*|MAIL_PASSWORD=58@S5wZuWtpdDDX|g" .env
-sed -i "s|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|g" .env
-sed -i "s|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=free.mell@aiomarket.online|g" .env
-sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="Infinite Labs Cloud"|g' .env
+# SMTP credentials are intentionally left for the operator to configure in .env.
+sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="INFINITE LABS"|g' .env
 
 php artisan p:location:make --short=IN --long="India" 2>/dev/null || true
 
@@ -284,4 +286,3 @@ echo -e "  ${GRAY}Password  :${NC} ${WHITE}$PASSWORD${NC}"
 echo -e "  ${GRAY}Email     :${NC} ${WHITE}$EMAIL${NC}"
 echo -e "\n  ${PURPLE}Enjoy your new reviactyl Panel!${NC}"
 echo -e "${HEADER_LINE}"
-

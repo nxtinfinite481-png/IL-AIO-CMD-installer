@@ -15,6 +15,7 @@ W="\e[97m"
 GR="\e[90m"
 N="\e[0m"
 BOLD="\e[1m"
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # --- SYSTEM AUTO-DETECT VARIABLES ---
 detect_system() {
@@ -83,7 +84,7 @@ show_menu() {
     
     # Menu Items
     echo -e "  ${B}[1]${N} ${C}SSL Configuration    ${GR}:: (Certbot/Nginx)${N}"
-    echo -e "  ${B}[2]${N} ${G}Install Wings        ${GR}:: (Infinite Labs Script)${N}"
+    echo -e "  ${B}[2]${N} ${G}Install Wings        ${GR}:: (Local module)${N}"
     echo -e "  ${B}[3]${N} ${Y}Manager              ${GR}:: (Wings Manager)${N}"
     echo -e "  ${B}[4]${N} ${M}Database Manager     ${GR}:: (MySQL/MariaDB)${N}"
     echo -e "  ${B}[5]${N} ${R}Uninstall            ${GR}:: (Remove Wings)${N}"
@@ -91,6 +92,17 @@ show_menu() {
     echo -e "${GR}  ──────────────────────────────────────────────────────────${N}"
     echo -e "  ${B}[0]${N} ${W}Exit System${N}"
     echo ""
+}
+
+run_local_module() {
+    local relative_path="$1"
+    local module_path="${BASE_DIR}/${relative_path}"
+    if [[ ! -f "$module_path" ]]; then
+        echo -e "${R}Module unavailable: ${relative_path}${N}"
+        sleep 1
+        return 1
+    fi
+    bash "$module_path"
 }
 
 # --- ACTIONS ---
@@ -116,10 +128,12 @@ ssl_setup() {
     
 
     echo -e "${Y}➜ Requesting Certificate for ${W}$DOMAIN${Y}...${N}"
-    rm -rf /etc/letsencrypt/live/$DOMAIN
-    rm -rf /etc/letsencrypt/archive/$DOMAIN
-    rm -rf /etc/letsencrypt/renewal/$DOMAIN.conf
-    certbot certonly --nginx -d "$DOMAIN" --non-interactive --agree-tos --email "ssl$(tr -dc a-z0-9 </dev/urandom | head -c6)@$DOMAIN"
+    if [[ ! "$DOMAIN" =~ ^[A-Za-z0-9.-]+$ || "$DOMAIN" != *.* ]]; then
+        echo -e "\n${R}✖ Invalid domain name.${N}"
+        sleep 1
+        return
+    fi
+    certbot certonly --nginx -d "$DOMAIN" --non-interactive --agree-tos --email "ssl@$DOMAIN"
     
     echo -e "\n${G}✔ SSL Setup Complete.${N}"
     read -p "Press Enter to return..."
@@ -140,12 +154,7 @@ uninstall_menu() {
     echo -e "\n${Y}➜ Stopping Wings...${N}"
     systemctl disable --now wings 2>/dev/null
     rm -f /etc/systemd/system/wings.service
-    rm -rf /etc/pterodactyl /var/lib/pterodactyl /usr/local/bin/wings
-    systemctl disable --now wings 2>/dev/null
-    rm -f /etc/systemd/system/wings.service
-    rm -rf /etc/pterodactyl
-    rm -f /usr/local/bin/wings
-    rm -rf /var/lib/pterodactyl
+    rm -rf -- /etc/pterodactyl /var/lib/pterodactyl /usr/local/bin/wings
     
     echo -e "${Y}➜ Pruning Docker...${N}"
     docker system prune -a -f 2>/dev/null
@@ -178,9 +187,9 @@ while true; do
     
     case $opt in
         1) ssl_setup ;;
-        2) bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/wings/install.sh) ;;
-        3) bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/wings/mang.sh) ;;
-        4) bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/wings/db.sh) ;;
+        2) run_local_module "wings/install.sh" ;;
+        3) run_local_module "wings/mang.sh" ;;
+        4) run_local_module "wings/db.sh" ;;
         5) uninstall_menu ;;
         0) 
            echo -e "\n${G}👋 Goodbye!${N}"
@@ -192,4 +201,3 @@ while true; do
            ;;
     esac
 done
-

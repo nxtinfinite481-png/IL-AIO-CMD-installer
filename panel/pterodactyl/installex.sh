@@ -34,9 +34,9 @@ ask() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     read input
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -122,7 +122,7 @@ chmod -R 755 storage/* bootstrap/cache/
 # --- MariaDB Setup ---
 DB_NAME=panel
 DB_USER=pterodactyl
-DB_PASS=yourPassword
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 mariadb -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';"
 mariadb -e "CREATE DATABASE ${DB_NAME};"
 mariadb -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1' WITH GRANT OPTION;"
@@ -234,17 +234,14 @@ sed -i '/RECAPTCHA_ENABLED=/d' .env
 echo 'RECAPTCHA_ENABLED=false' >> .env
 # Set app name
 sed -i '/APP_NAME=/d' .env
-echo 'APP_NAME="Infinite Labs Cloud"' >> .env
+echo 'APP_NAME="INFINITE LABS"' >> .env
 TIMEZONE=$(timedatectl show --property=Timezone --value)
 sed -i "s|APP_TIMEZONE=.*|APP_TIMEZONE=${TIMEZONE}|g" .env
 sed -i "s|MAIL_MAILER=.*|MAIL_MAILER=smtp|g" .env
 sed -i "s|MAIL_HOST=.*|MAIL_HOST=smtp.zoho.in|g" .env
 sed -i "s|MAIL_PORT=.*|MAIL_PORT=587|g" .env
-sed -i "s|MAIL_USERNAME=.*|MAIL_USERNAME=free.mell@aiomarket.online|g" .env
-sed -i "s|MAIL_PASSWORD=.*|MAIL_PASSWORD=58@S5wZuWtpdDDX|g" .env
-sed -i "s|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|g" .env
-sed -i "s|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=free.mell@aiomarket.online|g" .env
-sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="Infinite Labs Cloud"|g' .env
+# SMTP credentials are intentionally left for the operator to configure in .env.
+sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="INFINITE LABS"|g' .env
 php artisan p:location:make --short=IN --long="India"
 # ---------------- DONE ----------------
 php artisan down
@@ -273,5 +270,3 @@ echo -e "  ${GRAY}Email     :${NC} ${WHITE}$EMAIL${NC}"
 # Cleaned up the closing message
 echo -e "\n  ${PURPLE}Enjoy your new Pterodactyl Panel!${NC}"
 echo -e "${GRAY}────────────────────────────────────────────────────────────${NC}"
-
-

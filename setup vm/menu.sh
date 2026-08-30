@@ -1,24 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# COLORS
+# --- VPS / VM MENU ---
 R="\e[31m"; G="\e[32m"; Y="\e[33m"; B="\e[34m"; C="\e[36m"; M="\e[35m"; W="\e[37m"; N="\e[0m"
-
-# NEW UI STYLE FUNCTIONS
-print_box() {
-    local text="$1"
-    local color="$2"
-    local width=50
-    local padding=$(( (width - ${#text} - 2) / 2 ))
-    
-    echo -e "${color}┌$(printf '─%.0s' $(seq 1 $((width-2))))┐${N}"
-    printf "${color}│%*s%s%*s│${N}\n" $padding "" "$text" $((padding - ((${#text} % 2) ? 1 : 0))) ""
-    echo -e "${color}└$(printf '─%.0s' $(seq 1 $((width-2))))┘${N}"
-}
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly VM_WORKSPACE="${VM_WORKSPACE:-${HOME}/vm}"
 
 print_header() {
-    clear
+    clear 2>/dev/null || true
     echo -e "\n${C}╔════════════════════════════════════════════════╗${N}"
-    echo -e "${C}║${W}           D E V E L O P M E N T   M E N U          ${C}║${N}"
+    echo -e "${C}║${W}             I N F I N I T E   L A B S          ${C}║${N}"
+    echo -e "${C}║${W}                  VPS / VM MENU                 ${C}║${N}"
     echo -e "${C}╚════════════════════════════════════════════════╝${N}\n"
 }
 
@@ -26,168 +17,65 @@ print_option() {
     local num="$1"
     local text="$2"
     local color="$3"
-    
-    echo -e "  ${color}┌──────────────────────────────────────┐${N}"
-    echo -e "  ${color}│${W}  [$num]  $text$(printf '%*s' $((31 - ${#text} - 6)))${color}│${N}"
-    echo -e "  ${color}└──────────────────────────────────────┘${N}\n"
+    echo -e "  ${color}[$num]${N} ${W}${text}${N}"
 }
 
-print_status() {
-    local text="$1"
-    local color="$2"
-    echo -e "\n${color}▶▶ ${text}${N}\n"
+pause() {
+    echo
+    read -r -p "Press Enter to return..."
 }
 
-# MAIN MENU LOOP
-while true; do
-    print_header
-    
-    print_option "1" "RDX Tool" "$G"
-    print_option "2" "𝗥𝘂𝗻 𝘃𝗺 1 Kvm" "$Y"
-    print_option "3" "𝗥𝘂𝗻 𝘃𝗺 2 No Kvm" "$B"
-    print_option "4" "𝗥𝘂𝗻 𝘃𝗺 3 ALL SETUP" "$B"
-    print_option "5" "Exit" "$R"
+run_vm_module() {
+    local relative_path="$1"
+    local module_path="${BASE_DIR}/${relative_path}"
+    if [[ ! -f "$module_path" ]]; then
+        echo -e "${R}Module unavailable: ${relative_path}${N}"
+        pause
+        return 1
+    fi
+    bash "$module_path"
+    pause
+}
 
-    
-    echo -e "${M}════════════════════════════════════════════════${N}"
-    echo -ne "${W}Select Option → ${N}"
-    read -p "" op
-    
-    case $op in
-    
-    # =========================================================
-    # (1) IDX TOOL - ENHANCED
-    # =========================================================
-    1)
-        clear
-        print_status "🔧 Running IDX Tool Setup..." "$Y"
-        echo -e "${M}════════════════════════════════════════════════${N}\n"
-        
-        echo -e "${C}🧹 Cleaning up old files...${N}"
-        cd
-        rm -rf myapp
-        rm -rf flutter
-        
-        cd vm
-        
-        if [ ! -d ".idx" ]; then
-            echo -e "${G}📁 Creating .idx directory...${N}"
-            mkdir .idx
-            cd .idx
-            
-            echo -e "${C}📝 Creating dev.nix configuration...${N}"
-            cat <<EOF > dev.nix
+setup_idx_workspace() {
+    clear 2>/dev/null || true
+    echo -e "${Y}▶ Preparing the IDX workspace at ${VM_WORKSPACE}${N}\n"
+    mkdir -p "${VM_WORKSPACE}/.idx"
+    cat > "${VM_WORKSPACE}/.idx/dev.nix" <<'EOF'
 { pkgs, ... }: {
   channel = "stable-24.05";
-
   packages = with pkgs; [
-    unzip
-    openssh
-    git
-    qemu_kvm
-    sudo
-    cdrkit
-    cloud-utils
-    qemu
+    unzip openssh git qemu_kvm sudo cdrkit cloud-utils qemu
   ];
-
-  env = {
-    EDITOR = "nano";
-  };
-
+  env = { EDITOR = "nano"; };
   idx = {
-    extensions = [
-      "Dart-Code.flutter"
-      "Dart-Code.dart-code"
-    ];
-
-    workspace = {
-      onCreate = { };
-      onStart = { };
-    };
-
-    previews = {
-      enable = false;
-    };
+    extensions = [ "Dart-Code.flutter" "Dart-Code.dart-code" ];
+    workspace = { onCreate = { }; onStart = { }; };
+    previews = { enable = false; };
   };
 }
 EOF
-            
-            echo -e "\n${G}✅ IDX Tool setup complete!${N}"
-            echo -e "${W}┌──────────────────────────────────────┐${N}"
-            echo -e "${W}│ ${G}Status${W}: ${Y}Ready to use${W}                 │${N}"
-            echo -e "${W}│ ${G}Location${W}: ${Y}~/vps123/.idx${W}              │${N}"
-            echo -e "${W}└──────────────────────────────────────┘${N}"
-        else
-            echo -e "${Y}⚠ Directory .idx already exists — skipping.${N}"
-        fi
-        
-        echo -e "\n${M}════════════════════════════════════════════════${N}"
-        read -p "↩ Press Enter..."
-        ;;
-    
-    # =========================================================
-    # (2) 𝗥𝘂𝗻 𝘃𝗺𝟭 Kvm — ENHANCED
-    # =========================================================
-    2)
-        clear
-        print_status "🌐 Starting IDX VM From GitHub Script..." "$B"
-        echo -e "${M}════════════════════════════════════════════════${N}\n"
-        
-        echo -e "${C}📡 Fetching script from GitHub...${N}"
-        bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/setup%20vm/vm-1.sh)
-        
-        echo -e "\n${M}════════════════════════════════════════════════${N}"
-        read -p "↩ Press Enter..."
-        ;;
+    echo -e "${G}✓ IDX workspace ready: ${VM_WORKSPACE}/.idx${N}"
+    pause
+}
 
-    # =========================================================
-    # (3) 𝗥𝘂𝗻 𝘃𝗺𝟮 No kvm  — ENHANCED
-    # =========================================================
-    3)
-        clear
-        print_status "🌐 Starting vm 2 From GitHub Script..." "$B"
-        echo -e "${M}════════════════════════════════════════════════${N}\n"
-        
-        echo -e "${C}📡 Fetching script from GitHub...${N}"
+while true; do
+    print_header
+    print_option "1" "Prepare IDX workspace" "$G"
+    print_option "2" "Run VM 1 (KVM)" "$Y"
+    print_option "3" "Run VM 2 (no KVM)" "$B"
+    print_option "4" "Run VM 3 (complete setup)" "$B"
+    print_option "5" "Back" "$R"
+    echo -e "\n${M}════════════════════════════════════════════════${N}"
+    echo -ne "${W}Select Option → ${N}"
+    read -r op
 
-        bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/setup%20vm/vm-2.sh)
-        
-        echo -e "\n${M}════════════════════════════════════════════════${N}"
-        read -p "↩ Press Enter..."
-        ;;
-
-    # =========================================================
-    # (4) 𝗥𝘂𝗻 𝘃𝗺3 no+yes setup  — ENHANCED
-    # =========================================================
-    4)
-        clear
-        print_status "🌐 Starting vm 2 From GitHub Script..." "$B"
-        echo -e "${M}════════════════════════════════════════════════${N}\n"
-        
-        echo -e "${C}📡 Fetching script from GitHub...${N}"
-
-        bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/setup%20vm/vm-3.sh)
-        
-        echo -e "\n${M}════════════════════════════════════════════════${N}"
-        read -p "↩ Press Enter..."
-        ;;  
-    # =========================================================
-    # EXIT - ENHANCED
-    # =========================================================
-    5)
-        clear
-        echo -e "\n${C}╔════════════════════════════════════════════════╗${N}"
-        echo -e "${C}║${R}                 E X I T I N G                  ${C}║${N}"
-        echo -e "${C}╚════════════════════════════════════════════════╝${N}\n"
-        echo -e "${Y}👋 Thank you for using the Development Menu!${N}\n"
-        exit 0
-        ;;
-    
-    *)
-        echo -e "\n${R}❌ Invalid Option! Please try again.${N}"
-        sleep 1
-        ;;
+    case "$op" in
+        1) setup_idx_workspace ;;
+        2) run_vm_module "setup vm/vm-1.sh" ;;
+        3) run_vm_module "setup vm/vm-2.sh" ;;
+        4) run_vm_module "setup vm/vm-3.sh" ;;
+        5) clear 2>/dev/null || true; exit 0 ;;
+        *) echo -e "\n${R}Invalid Option! Please try again.${N}"; sleep 1 ;;
     esac
 done
-

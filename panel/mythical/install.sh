@@ -39,9 +39,9 @@ ask() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     read input
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -90,7 +90,8 @@ done
 echo -e "${GRAY}────────────────────────────────────────────────────────────${NC}"
 echo -e "  ${CYAN}SUCCESS:${NC} ${WHITE}Panel is live at http://$DOMAIN${NC}"
 
-bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/mythical/os.sh) 
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
+bash "$BASE_DIR/panel/mythical/os.sh"
 #============================================================================================
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 mkdir -p /var/www/mythicaldash
@@ -101,7 +102,9 @@ chown -R www-data:www-data /var/www/mythicaldash/*
 COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
 DB_NAME=mythicaldash
 DB_USER=mythicaldash
-DB_PASS=1234
+read -r -s -p "Database password (leave blank to generate securely): " DB_PASS
+echo
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 mariadb -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';"
 mariadb -e "CREATE DATABASE ${DB_NAME};"
 mariadb -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1' WITH GRANT OPTION;"
@@ -197,7 +200,6 @@ if [ -f /etc/nginx/sites-enabled/default ]; then
 fi
 ln -sf /etc/nginx/sites-available/MythicalDash.conf /etc/nginx/sites-enabled/
 nginx -t &&  systemctl restart nginx
-
 
 
 

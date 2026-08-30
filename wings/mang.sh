@@ -9,6 +9,7 @@ GREEN='\033[38;5;82m'
 RED='\033[38;5;196m'
 GOLD='\033[38;5;214m'
 NC='\033[0m'
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
 SERVICE="wings"
 
@@ -27,7 +28,7 @@ show_header() {
     UPTIME=$(systemctl show -p ActiveEnterTimestamp $SERVICE | cut -d'=' -f2)
     
     echo -e "${PURPLE}┌──────────────────────────────────────────────────────────┐${NC}"
-    echo -e "${PURPLE}│${NC}  ${CYAN}🪽  WINGS Wings Manager${NC} ${GRAY}v17.0${NC}          ${GRAY}$(date +"%H:%M")${NC}  ${PURPLE}│${NC}"
+    echo -e "${PURPLE}│${NC}  ${CYAN}🪽  WINGS CONTROL CENTER${NC} ${GRAY}v17.0${NC}          ${GRAY}$(date +"%H:%M")${NC}  ${PURPLE}│${NC}"
     echo -e "${PURPLE}└──────────────────────────────────────────────────────────┘${NC}"
     echo -e "  ${CYAN}NODE DIAGNOSTICS${NC}"
     echo -e "  ${GRAY}├─ Service :${NC} ${WHITE}$SERVICE${NC}   ${GRAY}Status :${NC} $STATUS"
@@ -38,7 +39,7 @@ show_header() {
 locl-ip() {
     clear
     echo -e "${PURPLE}┌──────────────────────────────────────────────────────────┐${NC}"
-    echo -e "${PURPLE}│${NC}  ${CYAN}🪽  WINGS Wings Manager${NC} ${GRAY}v17.0${NC}          ${GRAY}$(date +"%H:%M")${NC}  ${PURPLE}│${NC}"
+    echo -e "${PURPLE}│${NC}  ${CYAN}🪽  WINGS CONTROL CENTER${NC} ${GRAY}v17.0${NC}          ${GRAY}$(date +"%H:%M")${NC}  ${PURPLE}│${NC}"
     echo -e "${PURPLE}└──────────────────────────────────────────────────────────┘${NC}"
     echo -e "  ${CYAN}NODE DIAGNOSTICS${NC}"
     echo -e "  ${GRAY}├─ Service :${NC} ${WHITE}$SERVICE${NC}   ${GRAY}Status :${NC} $STATUS"
@@ -72,7 +73,7 @@ locl-ip() {
 publick-ip() {
     clear
     echo -e "${PURPLE}┌──────────────────────────────────────────────────────────┐${NC}"
-    echo -e "${PURPLE}│${NC}  ${CYAN}🪽  WINGS Wings Manager${NC} ${GRAY}v17.0${NC}          ${GRAY}$(date +"%H:%M")${NC}  ${PURPLE}│${NC}"
+    echo -e "${PURPLE}│${NC}  ${CYAN}🪽  WINGS CONTROL CENTER${NC} ${GRAY}v17.0${NC}          ${GRAY}$(date +"%H:%M")${NC}  ${PURPLE}│${NC}"
     echo -e "${PURPLE}└──────────────────────────────────────────────────────────┘${NC}"
     echo -e "  ${CYAN}NODE DIAGNOSTICS${NC}"
     echo -e "  ${GRAY}├─ Service :${NC} ${WHITE}$SERVICE${NC}   ${GRAY}Status :${NC} $STATUS"
@@ -282,7 +283,7 @@ auto_setup() {
             sleep 1
             
             # Run Config Script
-            bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/wings/config.sh)
+            bash "$BASE_DIR/wings/config.sh"
             echo ""
             echo -e "${GREEN}>> Setup Complete! Press Enter to return to menu.${NC}"
             read
@@ -304,13 +305,17 @@ auto_setup() {
                 echo -e "${RED}Error: No command entered.${NC}"
             else
                 echo -e "${GREEN}>> Executing deployment...${NC}"
-                eval "$CMD"
+                if [[ "$CMD" =~ ^[[:space:]]*(sudo[[:space:]]+)?wings[[:space:]] ]]; then
+                    bash -c "$CMD"
+                else
+                    echo -e "${RED}Error: only a wings auto-deploy command is accepted.${NC}"
+                    continue
+                fi
                 
                 echo -e "${GREEN}>> Restarting Wings...${NC}"
                 systemctl restart wings
                 
-                echo -e "${GREEN}>> Fetching Manager...${NC}"
-                bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/ptero/refs/heads/main/ptero/wings/Manag)
+                echo -e "${GREEN}>> Returning to the local Wings manager...${NC}"
             fi
             
             echo ""
@@ -349,4 +354,3 @@ while true; do
         *) echo -e "  ${RED}⚠ Invalid Selection${NC}"; sleep 1 ;;
     esac
 done
-

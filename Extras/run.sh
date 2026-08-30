@@ -1,86 +1,46 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# ===================== COLORS =====================
-RED="\e[31m"
-GREEN="\e[32m"
-CYAN="\e[36m"
-GRAY="\e[90m"
-NC="\e[0m"
-URL="https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/Extras"
-# ===================== PAUSE =====================
+# --- EXTRAS MENU ---
+RED="\e[31m"; GREEN="\e[32m"; CYAN="\e[36m"; GRAY="\e[90m"; NC="\e[0m"
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+
 pause() {
-  read -rp "Press Enter to continue..."
+    read -r -p "Press Enter to continue..."
 }
 
-# ===================== INFRA MENU =====================
-infra_menu() {
-  while true; do
-    clear
-    echo -e "${GRAY}────────────── INFRA MENU ──────────────${NC}"
+run_extra() {
+    local relative_path="$1"
+    local module_path="${BASE_DIR}/${relative_path}"
+    if [[ ! -f "$module_path" ]]; then
+        echo -e "${RED}Module unavailable: ${relative_path}${NC}"
+        pause
+        return 1
+    fi
+    bash "$module_path"
+    pause
+}
+
+while true; do
+    clear 2>/dev/null || true
+    echo -e "${GRAY}────────────── INFINITE LABS EXTRAS ──────────────${NC}"
     echo -e "${CYAN} 1) Cockpit"
     echo -e " 2) CasaOS"
-    echo -e " 3) 1Panel"
-    echo -e " 4) LXC/LXD"
-    echo -e " 5) Docker"
-    echo -e " 6) vpanel"
-    echo -e " 7) Back${NC}"
-    echo -e "${GRAY}────────────────────────────────────────${NC}"
-    read -rp "Select → " im
+    echo -e " 3) 1Panel installer"
+    echo -e " 4) LXC/LXD helper"
+echo -e " 5) Docker"
+echo -e " 6) LVM helper"
+echo -e " 7) Back${NC}"
+    echo -e "${GRAY}──────────────────────────────────────────────────${NC}"
+    read -r -p "Select → " choice
 
-    case "$im" in
-      1)
-        clear
-        echo -e "${CYAN}Installing KVM + Cockpit...${NC}"
-        bash <(curl -fsSL $URL/Cockpit.sh)
-        echo -e "${GREEN}Access: https://SERVER_IP:9090${NC}"
-        pause
-        ;;
-      2)
-        clear
-        echo -e "${CYAN}Installing CasaOS...${NC}"
-        bash <(curl -fsSL $URL/casaos.sh)
-        pause
-        ;;
-      3)
-        clear
-        echo -e "${CYAN}Installing 1Panel...${NC}"
-        bash <(curl -fsSL $URL/cpanel.sh)
-        pause
-        ;;
-      4)
-        clear
-        echo -e "${CYAN}Installing  LXC/LXD...${NC}"
-        sudo usermod -aG lxd root
-        bash <(curl -fsSL $URL/Cockpit.sh)
-        pause
-        ;;
-      5)
-        clear
-        echo -e "${CYAN}Installing  docker...${NC}"
-        bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/Extras/docker.sh)
-        pause
-        ;;
-
-      6)
-        clear
-        echo -e "${CYAN}Installing  docker...${NC}"
-        git clone https://github.com/Infinite Labs329/vpanel.git
-        cd vpanel
-        sudo bash vpanel.sh 
-        pause
-        ;;
-      7)
-        clear
-        exit 0
-        ;;
-      *)
-        echo -e "${RED}Invalid option!${NC}"
-        pause
-        ;;
+    case "$choice" in
+        1) run_extra "Extras/Cockpit.sh" ;;
+        2) run_extra "Extras/casaos.sh" ;;
+        3) run_extra "Extras/cpanel.sh" ;;
+        4) echo -e "${CYAN}Adding the current user to the LXD group...${NC}"; sudo usermod -aG lxd "$(id -un)"; pause ;;
+        5) run_extra "Extras/docker.sh" ;;
+        6) run_extra "Extras/lvm.sh" ;;
+        7) clear 2>/dev/null || true; exit 0 ;;
+        *) echo -e "${RED}Invalid option!${NC}"; pause ;;
     esac
-  done
-}
-
-# ===================== START =====================
-infra_menu
-
+done

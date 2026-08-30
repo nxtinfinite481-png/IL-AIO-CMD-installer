@@ -14,6 +14,7 @@ CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 BOLD='\033[1m'
 NC='\033[0m'
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # --- UI HELPER FUNCTIONS ---
 
@@ -49,8 +50,7 @@ install_ptero() {
     status_msg "INFO" "Initiating installation script..."
     sleep 1
     
-    # Run the external script
-    bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/paymenter/install.sh)
+    bash "$BASE_DIR/panel/paymenter/install.sh"
     
     echo ""
     status_msg "OK" "Installation Sequence Complete."
@@ -155,8 +155,8 @@ uninstall_ptero() {
 update_panel() {
     show_header "SYSTEM UPDATE"
 
-    if [ ! -d /var/www/pterodactyl ]; then
-        status_msg "ERR" "Panel not found in /var/www/pterodactyl"
+    if [ ! -d /var/www/paymenter ]; then
+        status_msg "ERR" "Panel not found in /var/www/paymenter"
         pause
         return
     fi
@@ -230,11 +230,10 @@ while true; do
         1) install_ptero ;;
         2) create_user ;;
         3) update_panel ;;
-        4) bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/pterodactyl/ssl.sh) ;;
-        5) bash <(curl -fsSL https://raw.githubusercontent.com/Infinite Labs329/Thame/refs/heads/main/run.sh) ;;
+        4) bash "$BASE_DIR/panel/pterodactyl/ssl.sh" ;;
+        5) bash "$BASE_DIR/thame/run.sh" ;;
         6) uninstall_ptero ;;
         0) clear; exit ;;
         *) echo -e "${RED}  Invalid option selected...${NC}"; sleep 1 ;;
     esac
 done
-

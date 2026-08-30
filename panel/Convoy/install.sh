@@ -72,7 +72,11 @@ if [ $HAS_DB -eq 1 ]; then
     echo -e "  ${GRAY}└─ DB Credentials saved to .env later.${NC}"
 else
     # If DB exists, ask for existing creds or use defaults
-    DB_NAME="convoy"; DB_USER="convoy_user"; DB_PASS="yourPassword"
+    DB_NAME="convoy"; DB_USER="convoy_user"; DB_PASS="${DB_PASS:-}"
+    if [ -z "$DB_PASS" ]; then
+        read -r -s -p "Existing Convoy database password: " DB_PASS
+        echo
+    fi
 fi
 
 # 3. Docker Installation
@@ -109,11 +113,10 @@ fi
 sed -i "s|MAIL_MAILER=.*|MAIL_MAILER=smtp|g" .env
 sed -i "s|MAIL_HOST=.*|MAIL_HOST=smtp.zoho.in|g" .env
 sed -i "s|MAIL_PORT=.*|MAIL_PORT=587|g" .env
-sed -i "s|MAIL_USERNAME=.*|MAIL_USERNAME=free.mell@aiomarket.online|g" .env
-sed -i "s|MAIL_PASSWORD=.*|MAIL_PASSWORD=58@S5wZuWtpdDDX|g" .env
+# SMTP credentials are intentionally left for the operator to configure in .env.
 sed -i "s|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|g" .env
-sed -i "s|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=free.mell@aiomarket.online|g" .env
-sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="Infinite Labs Cloud"|g' .env
+# Configure MAIL_FROM_ADDRESS in .env when SMTP is enabled.
+sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="INFINITE LABS"|g' .env
 # 5. Finalizing with Docker Compose
 echo -e "  ${PURPLE}[5/5]${NC} ${WHITE}Building Containers & Migrating Database...${NC}"
 docker compose up -d
@@ -130,4 +133,3 @@ echo -e "  ${CYAN}Database :${NC} ${WHITE}${DB_NAME}${NC}"
 echo -e "  ${CYAN}DB User  :${NC} ${WHITE}${DB_USER}${NC}"
 echo -e "  ${CYAN}DB Pass  :${NC} ${WHITE}${DB_PASS}${NC}"
 echo -e "${GRAY}────────────────────────────────────────────────────────────${NC}"
-

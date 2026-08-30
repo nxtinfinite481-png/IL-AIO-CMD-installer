@@ -37,7 +37,7 @@ systemctl enable --now cron
 (crontab -l 2>/dev/null; echo "* * * * * php /var/www/pteroca/bin/console pteroca:cron:schedule >> /dev/null 2>&1") | crontab -
 DB_NAME=pteroca
 DB_USER=pterocauser
-DB_PASS=1234
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 mariadb -e "DROP DATABASE IF EXISTS ${DB_NAME};"
 mariadb -e "DROP USER IF EXISTS '${DB_USER}'@'127.0.0.1';"
 mariadb -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';"
@@ -83,14 +83,15 @@ ln -s /etc/nginx/sites-available/pteroca.conf /etc/nginx/sites-enabled/pteroca.c
 nginx -t && systemctl restart nginx
 sudo chown -R www-data:www-data /var/www/pteroca
 sudo chmod -R 755 /var/www/pteroca
-cd /var/www/pterodactyl
-COMPOSER_ALLOW_SUPERUSER=1 composer require pteroca-com/pterodactyl-addon -n
-COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-php artisan config:clear
+if [ -d /var/www/pterodactyl ]; then
+    cd /var/www/pterodactyl
+    COMPOSER_ALLOW_SUPERUSER=1 composer require pteroca-com/pterodactyl-addon -n
+    COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
+    php artisan migrate --force
+    php artisan config:clear
+fi
 php artisan cache:clear
 php artisan queue:restart
 chown -R www-data:www-data /var/www/pterodactyl/*
 cd /var/www/pteroca
 php bin/console pteroca:system:configure
-

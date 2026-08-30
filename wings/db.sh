@@ -65,9 +65,9 @@ get_input() {
     echo -ne "${C_PURPLE} │   ├─${C_RESET} ${C_CYAN}$1${C_RESET} ${C_GRAY}[$2]${C_RESET}: "
     read input
     if [ -z "$input" ]; then
-        eval $3="'$2'"
+        printf -v "$3" '%s' "$2"
     else
-        eval $3="'$input'"
+        printf -v "$3" '%s' "$input"
     fi
 }
 
@@ -153,4 +153,3 @@ echo -e " ${C_GRAY}●${C_RESET} Remote IP : ${C_WHITE}${C_BOLD}0.0.0.0${C_RESET
 echo -e " ${C_GRAY}●${C_RESET} Port      : ${C_WHITE}${C_BOLD}3306${C_RESET}"
 echo -e "${C_GRAY} ──────────────────────────────────────────${C_RESET}"
 echo ""
-

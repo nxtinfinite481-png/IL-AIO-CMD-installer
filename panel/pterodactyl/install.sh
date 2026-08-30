@@ -49,9 +49,9 @@ ask() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     read input
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -63,13 +63,13 @@ ask_timeout() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     if ! read -t 10 input; then
         echo -e "\n  ${GOLD}⌛ Timeout — using default: ${WHITE}$default${NC}"
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
         return
     fi
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -110,7 +110,7 @@ select_version() {
 
     if [[ ${#tags[@]} -eq 0 ]]; then
         echo -e "  ${YELLOW}No versions found. Using latest.${NC}"
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
         return
     fi
 
@@ -119,19 +119,19 @@ select_version() {
     echo -ne "\n  ${PURPLE}•${NC} ${WHITE}Select version [1-$max]${NC} ${GRAY}[1 = latest]${NC}\n  ${GRAY}╰─>${NC} "
     if ! read -t 10 choice; then
         echo -e "\n  ${GOLD}⌛ Timeout — using latest: ${WHITE}${tags[0]}${NC}"
-        eval "$var_name=\"${tags[0]}\""
+        printf -v "$var_name" '%s' "${tags[0]}"
         return
     fi
     if [[ -z "$choice" || "$choice" == "1" ]]; then
         echo -e "  ${GREEN}→ ${WHITE}${tags[0]}${NC}"
-        eval "$var_name=\"${tags[0]}\""
+        printf -v "$var_name" '%s' "${tags[0]}"
     elif [[ "$choice" =~ ^[0-9]+$ ]] && [[ $choice -ge 1 ]] && [[ $choice -le $max ]]; then
         local idx=$((choice - 1))
         echo -e "  ${GREEN}→ ${WHITE}${tags[$idx]}${NC}"
-        eval "$var_name=\"${tags[$idx]}\""
+        printf -v "$var_name" '%s' "${tags[$idx]}"
     else
         echo -e "  ${GREEN}→ ${WHITE}${tags[0]}${NC} (invalid input)"
-        eval "$var_name=\"${tags[0]}\""
+        printf -v "$var_name" '%s' "${tags[0]}"
     fi
 }
 
@@ -139,7 +139,7 @@ select_version() {
 show_banner
 
 # --- DATA COLLECTION ---
-ask "Panel Domain" "panel.Infinite Labs.indevs.in" DOMAIN
+ask "Panel Domain" "panel.example.com" DOMAIN
 ask "Admin Email" "admin@gmail.com" EMAIL
 ask "Admin Username" "admin" USERNAME
 ask_timeout "Admin Password" "admin" PASSWORD
@@ -220,7 +220,7 @@ chmod -R 755 storage/* bootstrap/cache/
 # --- MariaDB Setup ---
 DB_NAME=panel
 DB_USER=pterodactyl
-DB_PASS=yourPassword
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 mariadb -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';" 2>/dev/null || true
 mariadb -e "CREATE DATABASE ${DB_NAME};" 2>/dev/null || true
 mariadb -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1' WITH GRANT OPTION;"
@@ -336,19 +336,12 @@ echo "APP_ENVIRONMENT_ONLY=false" >> .env
 sed -i '/RECAPTCHA_ENABLED=/d' .env
 echo 'RECAPTCHA_ENABLED=false' >> .env
 sed -i '/APP_NAME=/d' .env
-echo 'APP_NAME="Infinite Labs Cloud"' >> .env
+echo 'APP_NAME="INFINITE LABS"' >> .env
 TIMEZONE=$(timedatectl show --property=Timezone --value 2>/dev/null || echo "UTC")
 sed -i "s|APP_TIMEZONE=.*|APP_TIMEZONE=${TIMEZONE}|g" .env
 
-# SMTP defaults (user should update these)
-sed -i "s|MAIL_MAILER=.*|MAIL_MAILER=smtp|g" .env
-sed -i "s|MAIL_HOST=.*|MAIL_HOST=smtp.zoho.in|g" .env
-sed -i "s|MAIL_PORT=.*|MAIL_PORT=587|g" .env
-sed -i "s|MAIL_USERNAME=.*|MAIL_USERNAME=free.mell@aiomarket.online|g" .env
-sed -i "s|MAIL_PASSWORD=.*|MAIL_PASSWORD=58@S5wZuWtpdDDX|g" .env
-sed -i "s|MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=tls|g" .env
-sed -i "s|MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=free.mell@aiomarket.online|g" .env
-sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="Infinite Labs Cloud"|g' .env
+# SMTP credentials are intentionally left for the operator to configure in .env.
+sed -i 's|MAIL_FROM_NAME=.*|MAIL_FROM_NAME="INFINITE LABS"|g' .env
 
 php artisan p:location:make --short=IN --long="India" 2>/dev/null || true
 
@@ -373,5 +366,3 @@ echo -e "  ${GRAY}Password  :${NC} ${WHITE}$PASSWORD${NC}"
 echo -e "  ${GRAY}Email     :${NC} ${WHITE}$EMAIL${NC}"
 echo -e "\n  ${PURPLE}Enjoy your new Pterodactyl Panel!${NC}"
 echo -e "${HEADER_LINE}"
-
-

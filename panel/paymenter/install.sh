@@ -33,9 +33,9 @@ ask() {
     echo -ne "  ${PURPLE}•${NC} ${WHITE}$label${NC} ${GRAY}[$default]${NC}\n  ${GRAY}╰─>${NC} "
     read input
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -43,9 +43,14 @@ ask() {
 show_banner
 
 # --- DATA COLLECTION ---
-ask "Panel Domain" "billing.aiomarket.online" DOMAIN
-ask "Admin Email" "paymenter@gmail.com" EMAIL
-ask "Admin Password" "paymenter" PASSWORD
+ask "Panel Domain" "billing.example.com" DOMAIN
+ask "Admin Email" "admin@example.com" EMAIL
+read -r -s -p "  Admin Password (required): " PASSWORD
+echo
+if [[ -z "$PASSWORD" ]]; then
+    echo "Admin password cannot be empty." >&2
+    exit 1
+fi
 
 # --- FINAL VALIDATION LOOP ---
 echo -e "\n  ${GOLD}┌─[ REVIEW CONFIGURATION ]${NC}"
@@ -115,7 +120,7 @@ chmod -R 755 storage/* bootstrap/cache/
 # ================================ Creating the database ============================
 DB_NAME="paymenter"
 DB_USER="paymenter"
-DB_PASS="paymenter" 
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 mysql -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';"
 mysql -e "CREATE DATABASE ${DB_NAME};"
 mysql -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1' WITH GRANT OPTION;"
@@ -208,7 +213,7 @@ sudo systemctl enable --now redis-server
 cd /var/www/paymenter
 php artisan migrate --force
 php artisan tinker --execute="
-DB::table('settings')->updateOrInsert(['key'=>'company_name'], ['value'=>'Infinite Labs Cloud']);
+DB::table('settings')->updateOrInsert(['key'=>'company_name'], ['value'=>'INFINITE LABS']);
 DB::table('settings')->updateOrInsert(['key'=>'timezone'], ['value'=>'Asia/Kolkata']);
 DB::table('settings')->updateOrInsert(['key'=>'app_url'], ['value'=>'https://${DOMAIN}']);
 "
@@ -234,7 +239,6 @@ echo -e "  ${GRAY}Email     :${NC} ${WHITE}$EMAIL${NC}"
 # Cleaned up the closing message
 echo -e "\n  ${PURPLE}Enjoy your new Pterodactyl Panel!${NC}"
 echo -e "${GRAY}────────────────────────────────────────────────────────────${NC}"
-
 
 
 

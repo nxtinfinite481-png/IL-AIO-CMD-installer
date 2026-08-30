@@ -15,7 +15,7 @@ W="\e[97m"; N="\e[0m"
 BR="\e[1;31m"; BG="\e[1;32m"; BY="\e[1;33m"
 BM="\e[1;35m"; BC="\e[1;36m"; BW="\e[1;97m"
 
-THEME_PATH="./thame/UI"
+readonly ASSET_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/UI" && pwd)"
 
 trap 'echo -e "\n${R}[!] Force exit detected.${N}"; exit 1' SIGINT
 
@@ -57,8 +57,8 @@ run_blueprint() {
 
     if [[ "$ACTION" == "install" ]]; then
         echo -e "\n${G}📥 Downloading & Installing ${NAME%.blueprint}...${N}"
-        wget -q "$URL/$NAME" -O "$NAME"
-        if [[ -f "$NAME" ]]; then
+        if [[ -s "$ASSET_DIR/$NAME" ]]; then
+            cp "$ASSET_DIR/$NAME" "$NAME"
             yes | blueprint -i "$NAME"
             rm -f "$NAME"
         else
@@ -70,7 +70,7 @@ run_blueprint() {
     fi
 }
 
-get_title() { echo 'ICAgICAg44CCIOKAjCDigJMgTm9iaXRhLmRldiBDT05UUk9MIEhVQiDigJMg44CCICAgICAg' | base64 -d; }
+get_title() { echo "INFINITE LABS • BLUEPRINT THEMES"; }
 
 # ==========================================
 # 📋 HEADER
@@ -123,10 +123,15 @@ while true; do
   read -p " 👉 Enter choice: " opt
 
   if [[ "$opt" == "0" ]]; then
-      echo -e "\n${M} 👋 Infinite Labs so gaya... Bye!${N}"
+      echo -e "\n${M} 👋 INFINITE LABS session closed.${N}"
       exit
   fi
 
+  if [[ ! "$opt" =~ ^[0-9]+$ ]]; then
+      echo -e "\n${R} ❌ Invalid Option${N}"
+      sleep 1
+      continue
+  fi
   index=$((opt-1))
   NAME="${names[$index]}"
 
@@ -167,4 +172,3 @@ while true; do
   echo
   read -p " ↩️ Press [Enter] to return..."
 done
-

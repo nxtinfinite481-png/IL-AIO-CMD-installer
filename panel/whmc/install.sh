@@ -12,7 +12,9 @@ WEBROOT="/var/www/whmcs"
 DB_HOST="localhost"
 DB_NAME="whmcs"
 DB_USER="whmcsuser"
-DB_PASS="1234"
+read -r -s -p "Database password (leave blank to generate securely): " DB_PASS
+echo
+DB_PASS="${DB_PASS:-$(openssl rand -base64 24)}"
 
 
 echo ">>> Installing packages..."
@@ -42,12 +44,17 @@ systemctl restart php8.4-fpm
 rm -rf /tmp/ioncube /tmp/ioncube.tar.gz
 
 echo ">>> Setting up database..."
-DB_PASS='yourPassword' && mariadb -e "CREATE DATABASE IF NOT EXISTS panel; CREATE USER IF NOT EXISTS 'pterodactyl'@'localhost' IDENTIFIED BY '$DB_PASS'; CREATE USER IF NOT EXISTS 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$DB_PASS'; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'localhost'; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1'; FLUSH PRIVILEGES;"
+mariadb -e "CREATE DATABASE IF NOT EXISTS panel; CREATE USER IF NOT EXISTS 'pterodactyl'@'localhost' IDENTIFIED BY '$DB_PASS'; CREATE USER IF NOT EXISTS 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$DB_PASS'; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'localhost'; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1'; FLUSH PRIVILEGES;"
 (crontab -l 2>/dev/null; echo "*/5 * * * * /usr/bin/php -q /var/www/whmcs/crons/cron.php") | crontab -
 mkdir -p "$WEBROOT"
 
 echo ">>> Downloading WHMCS..."
-wget -q --show-progress -O /tmp/whmcs.zip "https://files.catbox.moe/2ba11q.zip"
+echo "WHMCS requires a licensed package supplied by the operator."
+echo "Place the licensed archive at /tmp/whmcs.zip before running this module."
+if [[ ! -f /tmp/whmcs.zip ]]; then
+    echo "Licensed WHMCS archive not found; stopping before any download." >&2
+    exit 1
+fi
 unzip -o /tmp/whmcs.zip -d "$WEBROOT"
 rm -f /tmp/whmcs.zip
 
@@ -111,4 +118,3 @@ echo " DB Pass    : $DB_PASS"
 echo ""
 echo " Path       : $WEBROOT"
 echo "=================================="
-

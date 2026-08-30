@@ -10,6 +10,7 @@ CYAN='\033[0;36m'
 MAGENTA='\033[1;35m'
 NC='\033[0m' # No Color
 BOLD='\033[1m'
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # ASCII Art for MythicalDash
 show_header() {
@@ -53,7 +54,7 @@ while true; do
             echo -e "${CYAN}Please wait while we download and configure...${NC}\n"
             
             echo -e "${BLUE}[1/4]${NC} ${CYAN}Downloading installer...${NC}"
-            bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/mythical/install.sh)
+            bash "$BASE_DIR/panel/mythical/install.sh"
             
             echo -e "\n${GREEN}✅ Installation process initiated!${NC}"
             echo -e "${CYAN}Follow the on-screen instructions to complete setup.${NC}"
@@ -166,4 +167,3 @@ EOF
     echo ""
     read -p "$(echo -e "${CYAN}Press ${BOLD}Enter${NC}${CYAN} to return to menu...${NC}")" dummy
 done
-

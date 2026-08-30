@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 echo "🧠 Detecting OS..."
 
@@ -17,15 +18,14 @@ echo "📌 OS Detected: $OS"
 # Auto run based on OS
 if [[ "$OS" == "ubuntu" ]]; then
     echo "🚀 Running Ubuntu installer..."
-    bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/mythical/Ubuntu.sh) 
+    bash "$BASE_DIR/panel/mythical/Ubuntu.sh"
 
 elif [[ "$OS" == "debian" ]]; then
     echo "🚀 Running Debian installer..."
-    bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/panel/mythical/Debian.sh) 
+    bash "$BASE_DIR/panel/mythical/Debian.sh"
 else
     echo "❌ Unsupported OS: $OS"
     exit 1
 fi
 
 echo "✅ Done! System ready."
-

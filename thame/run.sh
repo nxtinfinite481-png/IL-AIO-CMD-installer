@@ -7,6 +7,7 @@ YELLOW="\e[33m"
 CYAN="\e[36m"
 MAGENTA="\e[35m"
 RESET="\e[0m"
+readonly BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
 draw_box() {
     echo -e "${CYAN}╔══════════════════════════════╗${RESET}"
@@ -49,7 +50,6 @@ while true; do
     echo -e "   ${YELLOW}[1]${RESET} Blueprint"
     echo -e "   ${YELLOW}[2]${RESET} Theme"
     echo -e "   ${YELLOW}[3]${RESET} Extensions"
-    echo -e "   ${YELLOW}[4]${RESET} Hyper V1 🚀"
     echo ""
     echo -e "   ${RED}[0] Exit${RESET}"
     echo ""
@@ -96,7 +96,7 @@ while true; do
                         if [ "$installed" = false ]; then
                             echo -e "${CYAN}Installing...${RESET}"
                             rm -f /etc/apt/keyrings/nodesource.gpg 2>/dev/null
-                            yes | bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/thame/install.sh)
+                            yes | bash "$BASE_DIR/thame/install.sh"
                         else
                             yes | blueprint -rerun-install
                         fi
@@ -177,7 +177,7 @@ while true; do
             draw_box
             echo ""
             echo -e "${CYAN}Launching Theme...${RESET}"
-            bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/thame/thames.sh)
+            bash "$BASE_DIR/thame/thames.sh"
             pause
             ;;
 
@@ -186,24 +186,7 @@ while true; do
             draw_box
             echo ""
             echo -e "${CYAN}Launching Extensions...${RESET}"
-            bash <(curl -s https://raw.githubusercontent.com/Infinite Labs329/Infinite Labs-Cloud/refs/heads/main/thame/Extension2.sh)
-            pause
-            ;;
-
-        4)
-            clear
-            draw_box
-            echo ""
-            echo -e "${MAGENTA}Launching Hyper V1...${RESET}"
-            wget -O installer.sh https://r2.rolexdev.tech/hyperv1/installer.sh
-            chmod +x installer.sh
-            sudo ./installer.sh
-            rm installer.sh
-            cd /var/www/pterodactyl
-            php artisan view:clear
-            php artisan config:clear
-            chown -R www-data:www-data /var/www/pterodactyl/*
-            php artisan queue:restart
+            bash "$BASE_DIR/thame/Extension2.sh"
             pause
             ;;
 
@@ -219,4 +202,3 @@ while true; do
             ;;
     esac
 done
-

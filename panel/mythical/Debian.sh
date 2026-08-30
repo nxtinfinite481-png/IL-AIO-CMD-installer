@@ -67,4 +67,3 @@ echo "👉 Nginx: $(nginx -v 2>&1)"
 echo "👉 MariaDB: $(mysql -V)"
 
 echo "🎉 Server ekdum ready hai!"
-

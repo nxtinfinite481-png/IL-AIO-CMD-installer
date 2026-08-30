@@ -23,8 +23,6 @@ NC="\e[0m"
 # VARIABLES
 # =========================================================
 
-HVM_URL="https://files.catbox.moe/rr0uum.bin"
-
 INSTALL_DIR="/opt/hvm"
 SERVICE_NAME="hvm"
 PANEL_PORT="5000"
@@ -89,6 +87,12 @@ line
 
 if [[ "$EUID" -ne 0 ]]; then
     error "Please run this installer as root."
+    exit 1
+fi
+
+if [[ -z "${HVM_BINARY_SOURCE:-}" || ! -f "${HVM_BINARY_SOURCE:-}" ]]; then
+    error "This module will not download or execute an unreviewed remote binary."
+    error "Set HVM_BINARY_SOURCE to a locally supplied, audited binary to continue."
     exit 1
 fi
 
@@ -213,16 +217,11 @@ line
 # DOWNLOAD HVM BINARY
 # =========================================================
 
-info "Downloading hvm.bin..."
+info "Installing the locally supplied hvm.bin..."
 
 rm -f hvm.bin
 
-curl -L \
---fail \
---retry 5 \
---retry-delay 3 \
---progress-bar \
--o hvm.bin "${HVM_URL}"
+cp -- "${HVM_BINARY_SOURCE}" hvm.bin
 
 echo
 
@@ -413,13 +412,8 @@ journalctl -u ${SERVICE_NAME} -f
 
 ════════════════════════════════════════════════════════
 
-ONE LINE INSTALLER
-
-bash <(curl -fsSL https://raw.githubusercontent.com/hopingboyz/hvm-panel/main/installer.sh)
-
 ════════════════════════════════════════════════════════
 
 EOF
 
 echo -e "${NC}"
-
