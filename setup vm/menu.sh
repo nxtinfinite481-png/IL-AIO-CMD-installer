@@ -41,7 +41,7 @@ while true; do
     print_option "1" "Run VM 1 (KVM)" "$Y"
     print_option "2" "Run VM 2 (no KVM)" "$B"
     print_option "3" "Run VM 3 (complete setup)" "$B"
-    print_option "4" "Back" "$R"
+    print_option "0" "Back" "$R"
     echo -e "\n${M}════════════════════════════════════════════════${N}"
     echo -ne "${W}Select Option → ${N}"
     read -r op
@@ -50,7 +50,7 @@ while true; do
         1) run_vm_module "setup vm/vm-1.sh" ;;
         2) run_vm_module "setup vm/vm-2.sh" ;;
         3) run_vm_module "setup vm/vm-3.sh" ;;
-        4) clear 2>/dev/null || true; exit 0 ;;
+        0) clear 2>/dev/null || true; exit 0 ;;
         *) echo -e "\n${R}Invalid Option! Please try again.${N}"; sleep 1 ;;
     esac
 done

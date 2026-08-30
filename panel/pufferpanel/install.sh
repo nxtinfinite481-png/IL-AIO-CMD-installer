@@ -111,7 +111,8 @@ install_repository() {
     trap 'rm -f -- "$repository_script"' RETURN
 
     # This is the official packagecloud repository bootstrap used by the
-    # legacy PufferPanel installation method. Keep it temporary and local.
+    # legacy PufferPanel installation method. Keep it temporary and local;
+    # never pipe an unreviewed remote response directly into a shell.
     curl --fail --silent --show-error --location "$REPOSITORY_SCRIPT_URL" -o "$repository_script"
     chmod 0700 "$repository_script"
     if ! grep -qF "packagecloud.io" "$repository_script"; then
@@ -140,7 +141,7 @@ main() {
 
     info "Installing repository prerequisites."
     apt-get update -y
-    apt-get install -y ca-certificates curl gnupg python3
+    apt-get install -y ca-certificates curl gnupg python3 git wget
 
     info "Configuring the official PufferPanel package repository."
     install_repository

@@ -54,16 +54,16 @@ panel_menu() {
         echo -e "  ${GOLD}  AVAILABLE PANEL MODULES${NC}"
         echo -e "  ${GRAY}┌──────────────────────────┬──────────────────────────┐${NC}"
         echo -e "  ${GRAY}│${NC} ${PURPLE}[1]${NC} Pterodactyl          ${GRAY}│${NC} ${PURPLE}[2]${NC}  PufferPanel         ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${RED}[3]${NC} Back                 ${GRAY}│${NC}                          │${NC}"
+        echo -e "  ${GRAY}│${NC} ${RED}[0]${NC} Back                 ${GRAY}│${NC}                          │${NC}"
         echo -e "  ${GRAY}└──────────────────────────┴──────────────────────────┘${NC}"
         echo
-        echo -ne "  ${CYAN}λ${NC} ${WHITE}Select Module [1-3]:${NC} "
+        echo -ne "  ${CYAN}λ${NC} ${WHITE}Select Module [0-2]:${NC} "
         read -r choice
 
         case "$choice" in
             1) echo -e "  ${CYAN}➜ Executing Pterodactyl routine...${NC}"; run_panel "panel/pterodactyl/run.sh" ;;
             2) echo -e "  ${CYAN}➜ Executing PufferPanel manager...${NC}"; run_panel "panel/pufferpanel/run.sh" ;;
-            3) echo -e "\n  ${RED}Returning to the main console.${NC}"; exit 0 ;;
+            0) echo -e "\n  ${RED}Returning to the main console.${NC}"; exit 0 ;;
             *) echo -e "  ${RED}⚠ Invalid Selection${NC}"; sleep 1 ;;
         esac
     done
