@@ -3,9 +3,7 @@
 set -Eeuo pipefail
 
 readonly CONFIG_FILE="/etc/pufferpanel/config.json"
-readonly KEYRING_FILE="/etc/apt/keyrings/pufferpanel.gpg"
-readonly SOURCES_FILE="/etc/apt/sources.list.d/pufferpanel.sources"
-readonly KEY_URL="https://packagecloud.io/pufferpanel/pufferpanel/gpgkey"
+readonly REPOSITORY_SCRIPT_URL="https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh"
 
 RED='\033[38;5;196m'
 GREEN='\033[38;5;82m'
@@ -108,24 +106,19 @@ PY
 }
 
 install_repository() {
-    local temporary_key
-    temporary_key="$(mktemp)"
-    trap 'rm -f -- "$temporary_key"' RETURN
+    local repository_script
+    repository_script="$(mktemp)"
+    trap 'rm -f -- "$repository_script"' RETURN
 
-    install -d -m 0755 /etc/apt/keyrings
-    curl --fail --silent --show-error --location "$KEY_URL" -o "$temporary_key"
-    gpg --batch --dearmor --yes --output "$KEYRING_FILE" "$temporary_key"
-    chmod 0644 "$KEYRING_FILE"
-
-    cat > "$SOURCES_FILE" <<'EOF'
-X-Repolib-Name: PufferPanel
-Types: deb
-URIs: https://packagecloud.io/pufferpanel/pufferpanel/any/
-Suites: any
-Components: main
-Signed-By: /etc/apt/keyrings/pufferpanel.gpg
-EOF
-    chmod 0644 "$SOURCES_FILE"
+    # This is the official packagecloud repository bootstrap used by the
+    # legacy PufferPanel installation method. Keep it temporary and local.
+    curl --fail --silent --show-error --location "$REPOSITORY_SCRIPT_URL" -o "$repository_script"
+    chmod 0700 "$repository_script"
+    if ! grep -qF "packagecloud.io" "$repository_script"; then
+        fail "The downloaded repository bootstrap did not pass validation."
+        return 1
+    fi
+    bash "$repository_script"
 }
 
 create_admin() {
@@ -147,7 +140,7 @@ main() {
 
     info "Installing repository prerequisites."
     apt-get update -y
-    apt-get install -y ca-certificates curl gnupg apt-transport-https python3
+    apt-get install -y ca-certificates curl gnupg python3
 
     info "Configuring the official PufferPanel package repository."
     install_repository

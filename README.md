@@ -19,8 +19,9 @@ on the caller's current working directory.
 ## Included
 
 - VPS and VM setup modules
-- Pterodactyl, Reviactyl, Paymenter, Jexactyl, Convoy, MythicalDash, PteroCA,
-  WHMCS, and PufferPanel routes where their local modules are present
+- Pterodactyl and PufferPanel routes in the user-facing Panels menu
+- Additional legacy installer modules remain in the repository for maintenance
+  purposes but are not exposed by the Panels menu
 - Pterodactyl Wings installation, configuration, database, and management
   tools
 - 20 packaged Blueprint themes
