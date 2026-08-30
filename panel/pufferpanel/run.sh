@@ -4,6 +4,9 @@ set -Eeuo pipefail
 
 readonly CONFIG_FILE="/etc/pufferpanel/config.json"
 readonly INSTALLER="${BASH_SOURCE[0]%/*}/install.sh"
+readonly REPOSITORY_SOURCE="/etc/apt/sources.list.d/pufferpanel_pufferpanel.list"
+readonly REPOSITORY_KEYRING="/etc/apt/keyrings/pufferpanel_pufferpanel-archive-keyring.gpg"
+readonly LEGACY_REPOSITORY_KEY="/etc/apt/trusted.gpg.d/pufferpanel_pufferpanel.gpg"
 
 RED='\033[38;5;196m'
 GREEN='\033[38;5;82m'
@@ -183,6 +186,35 @@ create_admin() {
     pufferpanel user add
 }
 
+uninstall_panel() {
+    printf '\n  %bThis removes the PufferPanel package and its module configuration.%b\n' "$PURPLE" "$NC"
+    printf '  It does not remove sudo, system binaries, or unrelated data.\n'
+
+    local answer
+    read -r -p "  Uninstall PufferPanel? [y/N]: " answer
+    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+        status_msg INFO "PufferPanel uninstall cancelled."
+        return 0
+    fi
+
+    status_msg INFO "Stopping PufferPanel service..."
+    systemctl disable --now pufferpanel 2>/dev/null || true
+
+    status_msg INFO "Uninstalling the PufferPanel package..."
+    if ! apt-get purge -y pufferpanel; then
+        status_msg ERR "PufferPanel package removal failed."
+        return 1
+    fi
+
+    if [[ -d "/etc/pufferpanel" ]]; then
+        status_msg INFO "Removing PufferPanel configuration..."
+        rm -rf -- "/etc/pufferpanel"
+    fi
+
+    rm -f -- "$REPOSITORY_SOURCE" "$REPOSITORY_KEYRING" "$LEGACY_REPOSITORY_KEY"
+    status_msg OK "PufferPanel has been uninstalled."
+}
+
 draw_menu() {
     clear 2>/dev/null || true
     printf '%b\n' "${PURPLE}┌──────────────────────────────────────────────────────────┐${NC}"
@@ -198,6 +230,7 @@ draw_menu() {
     printf '  %b[5]%b Start service\n' "$CYAN" "$WHITE"
     printf '  %b[6]%b Stop service\n' "$CYAN" "$WHITE"
     printf '  %b[7]%b Service status\n' "$CYAN" "$WHITE"
+    printf '  %b[8]%b Uninstall PufferPanel\n' "$CYAN" "$WHITE"
     printf '  %b[0]%b Back\n\n' "$RED" "$WHITE"
 }
 
@@ -206,7 +239,7 @@ main() {
 
     while true; do
         draw_menu
-        read -r -p "  Select option [0-7]: " choice
+        read -r -p "  ➜ Select option [0-8]: " choice
         case "$choice" in
             1)
                 bash "$INSTALLER"
@@ -234,6 +267,10 @@ main() {
                 ;;
             7)
                 show_service_status
+                pause
+                ;;
+            8)
+                uninstall_panel
                 pause
                 ;;
             0)
