@@ -318,8 +318,8 @@ verify_pufferpanel_installation() {
     info "PufferPanel service is active with main PID ${main_pid}."
 
     service_status="$(systemctl --no-pager --full status pufferpanel 2>&1 || true)"
-    if grep -Eiq 'GLIBC_[0-9.]+|not found' <<<"$service_status"; then
-        fail "The PufferPanel service reported a GLIBC/runtime error."
+    if grep -Eiq 'GLIBC_[0-9.]+|not found|flag needs an argument: --pid|config\.json: permission denied' <<<"$service_status"; then
+        fail "The PufferPanel service reported a startup or runtime error."
         printf '%s\n' "$service_status" >&2
         return 1
     fi
