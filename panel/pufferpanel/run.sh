@@ -4,6 +4,8 @@ set -Eeuo pipefail
 
 readonly CONFIG_FILE="/etc/pufferpanel/config.json"
 readonly INSTALLER="${BASH_SOURCE[0]%/*}/install.sh"
+readonly SERVICE_OVERRIDE_DIR="/etc/systemd/system/pufferpanel.service.d"
+readonly SERVICE_OVERRIDE_FILE="$SERVICE_OVERRIDE_DIR/10-infinite-labs-legacy.conf"
 readonly REPOSITORY_SOURCE="/etc/apt/sources.list.d/pufferpanel_pufferpanel.list"
 readonly REPOSITORY_KEYRING="/etc/apt/keyrings/pufferpanel_pufferpanel-archive-keyring.gpg"
 readonly LEGACY_REPOSITORY_KEY="/etc/apt/trusted.gpg.d/pufferpanel_pufferpanel.gpg"
@@ -211,6 +213,9 @@ uninstall_panel() {
         rm -rf -- "/etc/pufferpanel"
     fi
 
+    rm -f -- "$SERVICE_OVERRIDE_FILE"
+    rmdir --ignore-fail-on-non-empty "$SERVICE_OVERRIDE_DIR" 2>/dev/null || true
+    systemctl daemon-reload 2>/dev/null || true
     rm -f -- "$REPOSITORY_SOURCE" "$REPOSITORY_KEYRING" "$LEGACY_REPOSITORY_KEY"
     status_msg OK "PufferPanel has been uninstalled."
 }

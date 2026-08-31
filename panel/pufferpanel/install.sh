@@ -4,6 +4,8 @@ set -Eeuo pipefail
 
 readonly CONFIG_FILE="/etc/pufferpanel/config.json"
 readonly REPOSITORY_SCRIPT_URL="https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh"
+readonly SERVICE_OVERRIDE_DIR="/etc/systemd/system/pufferpanel.service.d"
+readonly SERVICE_OVERRIDE_FILE="$SERVICE_OVERRIDE_DIR/10-infinite-labs-legacy.conf"
 readonly LEGACY_PUFFERPANEL_VERSION="2.6.3"
 readonly LEGACY_PUFFERPANEL_PACKAGE_URL="https://packagecloud.io/pufferpanel/pufferpanel/packages/debian/buster/pufferpanel_2.6.3_amd64.deb/download.deb?distro_version_id=150"
 readonly LEGACY_PUFFERPANEL_PACKAGE_SHA256="a45af6d30a0abbe11de06d82807e3c182433b4fee596b28419dc13297d3b7e31"
@@ -132,6 +134,28 @@ verify_package_available() {
     fi
 }
 
+configure_legacy_service() {
+    mkdir -p -- "$SERVICE_OVERRIDE_DIR"
+    cat >"$SERVICE_OVERRIDE_FILE" <<'UNIT'
+[Service]
+# systemd expands MAINPID for an active Type=simple service.
+# The braces keep the PID as one complete argument for PufferPanel.
+ExecStop=
+ExecStop=/usr/sbin/pufferpanel shutdown --pid ${MAINPID}
+KillMode=mixed
+UNIT
+    chmod 0644 "$SERVICE_OVERRIDE_FILE"
+    systemctl daemon-reload
+}
+
+remove_legacy_service_override() {
+    rm -f -- "$SERVICE_OVERRIDE_FILE"
+    rmdir --ignore-fail-on-non-empty "$SERVICE_OVERRIDE_DIR" 2>/dev/null || true
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl daemon-reload
+    fi
+}
+
 verify_legacy_package() {
     local package_path="$1"
     local glibc_version="$2"
@@ -255,6 +279,20 @@ verify_pufferpanel_installation() {
         return 1
     fi
 
+    if ! systemctl is-active --quiet pufferpanel; then
+        fail "The PufferPanel systemd service is not active after installation."
+        systemctl --no-pager --full status pufferpanel || true
+        return 1
+    fi
+
+    local main_pid
+    main_pid="$(systemctl show -p MainPID --value pufferpanel 2>/dev/null || true)"
+    if [[ ! "$main_pid" =~ ^[1-9][0-9]*$ ]]; then
+        fail "The PufferPanel systemd service does not expose a valid main PID."
+        return 1
+    fi
+    info "PufferPanel service is active with main PID ${main_pid}."
+
     service_status="$(systemctl --no-pager --full status pufferpanel 2>&1 || true)"
     if grep -Eiq 'GLIBC_[0-9.]+|not found' <<<"$service_status"; then
         fail "The PufferPanel service reported a GLIBC/runtime error."
@@ -375,6 +413,7 @@ main() {
     if [[ "$pufferpanel_version" == "$LEGACY_PUFFERPANEL_VERSION" ]]; then
         install_legacy_package "$glibc_version"
     else
+        remove_legacy_service_override
         info "Configuring the official PufferPanel package repository."
         install_repository
         apt-get update -y
@@ -382,6 +421,11 @@ main() {
         verify_package_available "$pufferpanel_version"
         info "Installing PufferPanel ${pufferpanel_version}."
         apt-get install -y "pufferpanel=${pufferpanel_version}"
+    fi
+
+    if [[ "$pufferpanel_version" == "$LEGACY_PUFFERPANEL_VERSION" ]]; then
+        info "Installing the legacy PufferPanel systemd lifecycle override."
+        configure_legacy_service
     fi
 
     if [[ -f "$CONFIG_FILE" ]]; then
