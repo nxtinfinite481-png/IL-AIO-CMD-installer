@@ -30,7 +30,7 @@ auto_install() {
 
 pause() { 
     echo -e "\n${GR}────────────────────────────────────────${N}"
-    read -p " ↩ Press Enter to return..." _ 
+    read -p " λ Press Enter to return..." _
 }
 
 # --- HEADER UI ---
@@ -54,42 +54,43 @@ menu_sys() {
     while true; do
         draw_header
         echo -e "${M} [ CATEGORY 1: SYSTEM & HARDWARE ]${N}"
-        printf "${GR} 0.${W} %-25s ${GR}11.${W} %-25s\n" "All Info" "All Devices"
-        printf "${GR} 1.${W} %-25s ${GR}11.${W} %-25s\n" "OS Release Info" "PCI Devices"
-        printf "${GR} 2.${W} %-25s ${GR}12.${W} %-25s\n" "Kernel Version" "USB Devices"
-        printf "${GR} 3.${W} %-25s ${GR}13.${W} %-25s\n" "CPU Architecture" "Block Devices (lsblk)"
-        printf "${GR} 4.${W} %-25s ${GR}14.${W} %-25s\n" "CPU Cores/Threads" "Disk Space (df)"
-        printf "${GR} 5.${W} %-25s ${GR}15.${W} %-25s\n" "RAM Utilization" "Disk Inodes"
-        printf "${GR} 6.${W} %-25s ${GR}16.${W} %-25s\n" "Uptime Detail" "Mount Points"
-        printf "${GR} 7.${W} %-25s ${GR}17.${W} %-25s\n" "Load Average" "Hardware List (lshw)"
-        printf "${GR} 8.${W} %-25s ${GR}18.${W} %-25s\n" "Hostname Info" "BIOS/Firmware Info"
-        printf "${GR} 9.${W} %-25s ${GR}19.${W} %-25s\n" "System Date/Time" "Sensor Temps"
-        printf "${GR}10.${W} %-25s ${GR}20.${W} %-25s\n" "Last Reboot Log" "Battery Status"
+        printf "${GR} 1.${W} %-25s ${GR}12.${W} %-25s\n" "All Info" "All Devices"
+        printf "${GR} 2.${W} %-25s ${GR}13.${W} %-25s\n" "OS Release Info" "PCI Devices"
+        printf "${GR} 3.${W} %-25s ${GR}14.${W} %-25s\n" "Kernel Version" "USB Devices"
+        printf "${GR} 4.${W} %-25s ${GR}15.${W} %-25s\n" "CPU Architecture" "Block Devices (lsblk)"
+        printf "${GR} 5.${W} %-25s ${GR}16.${W} %-25s\n" "CPU Cores/Threads" "Disk Space (df)"
+        printf "${GR} 6.${W} %-25s ${GR}17.${W} %-25s\n" "RAM Utilization" "Disk Inodes"
+        printf "${GR} 7.${W} %-25s ${GR}18.${W} %-25s\n" "Uptime Detail" "Mount Points"
+        printf "${GR} 8.${W} %-25s ${GR}19.${W} %-25s\n" "Load Average" "Hardware List (lshw)"
+        printf "${GR} 9.${W} %-25s ${GR}20.${W} %-25s\n" "Hostname Info" "BIOS/Firmware Info"
+        printf "${GR}10.${W} %-25s ${GR}21.${W} %-25s\n" "System Date/Time" "Sensor Temps"
+        printf "${GR}11.${W} %-25s ${GR}22.${W} %-25s\n" "Last Reboot Log" "Battery Status"
         echo -e "${R} 0. Back to Main Menu${N}"
-        read -p " Select Tool > " opt
+        read -p " Select Tool λ " opt
         
         case $opt in
-            0) curl -sL yabs.sh | bash ;;
-            1) cat /etc/*release ;;
-            2) uname -a ;;
-            3) lscpu | grep Architecture ;;
-            4) lscpu | grep -E '^Thread|^Core|^Socket' ;;
-            5) free -h ;;
-            6) uptime -p ;;
-            7) uptime ;;
-            8) hostnamectl ;;
-            9) date ;;
-            10) last reboot | head -5 ;;
-            11) command -v lspci >/dev/null || apt install pciutils -y >/dev/null 2>&1; lspci; pause ;;
-            12) command -v lspci >/dev/null || apt install pciutils -y >/dev/null 2>&1; lspci; pause ;;
-            13) command -v lsblk >/dev/null || apt install util-linux -y >/dev/null 2>&1; lsblk; pause ;;
-            14) df -hT --exclude-type=tmpfs ;;
-            15) df -i ;;
-            16) mount | column -t ;;
-            17) auto_install lshw; sudo lshw -short ;;
-            18) [ -d /sys/firmware/efi ] && echo "UEFI Boot" || echo "Legacy BIOS" ;;
-            19) auto_install lm-sensors; sensors ;;
-            20) acpi -bi 2>/dev/null || echo "No battery detected" ;;
+            1) curl -sL yabs.sh | bash ;;
+            2) cat /etc/*release ;;
+            3) uname -a ;;
+            4) lscpu | grep Architecture ;;
+            5) lscpu | grep -E '^Thread|^Core|^Socket' ;;
+            6) free -h ;;
+            7) uptime -p ;;
+            8) uptime ;;
+            9) hostnamectl ;;
+            10) date ;;
+            11) last reboot | head -5 ;;
+            12) auto_install lshw; sudo lshw -short ;;
+            13) command -v lspci >/dev/null || apt install pciutils -y >/dev/null 2>&1; lspci; pause ;;
+            14) auto_install usbutils; lsusb; pause ;;
+            15) command -v lsblk >/dev/null || apt install util-linux -y >/dev/null 2>&1; lsblk; pause ;;
+            16) df -hT --exclude-type=tmpfs ;;
+            17) df -i ;;
+            18) mount | column -t ;;
+            19) auto_install lshw; sudo lshw -short ;;
+            20) [ -d /sys/firmware/efi ] && echo "UEFI Boot" || echo "Legacy BIOS" ;;
+            21) auto_install lm-sensors; sensors ;;
+            22) acpi -bi 2>/dev/null || echo "No battery detected" ;;
             0) return ;; # Breaks loop, returns to main menu
             *) echo "Invalid option"; sleep 1; continue ;;
         esac
@@ -115,7 +116,7 @@ menu_net() {
         printf "${GR}29.${W} %-25s ${GR}39.${W} %-25s\n" "Interface Stats" "Bandwidth (nload)"
         printf "${GR}30.${W} %-25s ${GR}40.${W} %-25s\n" "Flush DNS Cache" "Wifi Signal (Linux)"
         echo -e "${R} 0. Back to Main Menu${N}"
-        read -p " Select Tool > " opt
+        read -p " Select Tool λ " opt
         
         case $opt in
             21) ip a ;;
@@ -163,7 +164,7 @@ menu_sec() {
         printf "${GR}49.${W} %-25s ${GR}59.${W} %-25s\n" "Kick User" "AppArmor Status"
         printf "${GR}50.${W} %-25s ${GR}60.${W} %-25s\n" "Kill User Procs" "History Cleaner"
         echo -e "${R} 0. Back to Main Menu${N}"
-        read -p " Select Tool > " opt
+        read -p " Select Tool λ " opt
         
         case $opt in
             41) sudo ufw status 2>/dev/null || echo "UFW not found" ;;
@@ -211,7 +212,7 @@ menu_maint() {
         printf "${GR}69.${W} %-25s ${GR}79.${W} %-25s\n" "Find Large Files" "Enable Service"
         printf "${GR}70.${W} %-25s ${GR}80.${W} %-25s\n" "Memory Cache Drop" "Disable Service"
         echo -e "${R} 0. Back to Main Menu${N}"
-        read -p " Select Tool > " opt
+        read -p " Select Tool λ " opt
         
         case $opt in
             61) sudo apt update || sudo yum check-update ;;
@@ -259,7 +260,7 @@ menu_web() {
         printf "${GR}89.${W} %-25s ${GR}99.${W} %-25s\n" "Docker Stats" "Error Logs"
         printf "${GR}90.${W} %-25s ${GR}100.${W} %-25s\n" "Docker Compose Up" "Certbot Renew"
         echo -e "${R} 0. Back to Main Menu${N}"
-        read -p " Select Tool > " opt
+        read -p " Select Tool λ " opt
         
         case $opt in
             81) docker --version ;;
@@ -317,4 +318,3 @@ while true; do
         *) echo "Invalid"; sleep 1 ;;
     esac
 done
-
