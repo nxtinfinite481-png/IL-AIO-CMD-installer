@@ -6,6 +6,8 @@ readonly CONFIG_FILE="/etc/pufferpanel/config.json"
 readonly REPOSITORY_SCRIPT_URL="https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh"
 readonly SERVICE_OVERRIDE_DIR="/etc/systemd/system/pufferpanel.service.d"
 readonly SERVICE_OVERRIDE_FILE="$SERVICE_OVERRIDE_DIR/10-infinite-labs-legacy.conf"
+readonly PUFFERPANEL_USER="pufferpanel"
+readonly PUFFERPANEL_GROUP="pufferpanel"
 readonly LEGACY_PUFFERPANEL_VERSION="2.6.3"
 readonly LEGACY_PUFFERPANEL_PACKAGE_URL="https://packagecloud.io/pufferpanel/pufferpanel/packages/debian/buster/pufferpanel_2.6.3_amd64.deb/download.deb?distro_version_id=150"
 readonly LEGACY_PUFFERPANEL_PACKAGE_SHA256="a45af6d30a0abbe11de06d82807e3c182433b4fee596b28419dc13297d3b7e31"
@@ -241,16 +243,33 @@ install_legacy_package() {
     dpkg --install "$package_path"
 }
 
+fix_legacy_config_permissions() {
+    if ! getent passwd "$PUFFERPANEL_USER" >/dev/null 2>&1 ||
+        ! getent group "$PUFFERPANEL_GROUP" >/dev/null 2>&1; then
+        fail "The PufferPanel service user/group was not created by the package."
+        return 1
+    fi
+
+    chown "$PUFFERPANEL_USER:$PUFFERPANEL_GROUP" "$CONFIG_FILE"
+    chmod 0640 "$CONFIG_FILE"
+}
+
 verify_pufferpanel_installation() {
+    local expected_version="$1"
     local version_output
     local service_status
+    local -a version_command=(pufferpanel --version)
 
     if ! command -v pufferpanel >/dev/null 2>&1; then
         fail "PufferPanel binary was not installed."
         return 1
     fi
 
-    if ! version_output="$(pufferpanel --version 2>&1)"; then
+    if [[ "$expected_version" == "$LEGACY_PUFFERPANEL_VERSION" ]]; then
+        version_command=(pufferpanel version)
+    fi
+
+    if ! version_output="$("${version_command[@]}" 2>&1)"; then
         fail "PufferPanel failed its startup/version check."
         printf '%s\n' "$version_output" >&2
         return 1
@@ -258,6 +277,11 @@ verify_pufferpanel_installation() {
 
     if grep -Eiq 'GLIBC_[0-9.]+|not found' <<<"$version_output"; then
         fail "PufferPanel reported a GLIBC/runtime error."
+        printf '%s\n' "$version_output" >&2
+        return 1
+    fi
+    if ! grep -Fq "$expected_version" <<<"$version_output"; then
+        fail "PufferPanel reported an unexpected version; expected ${expected_version}."
         printf '%s\n' "$version_output" >&2
         return 1
     fi
@@ -433,6 +457,9 @@ main() {
         read -r -p "  Web port [8080]: " port
         port="${port:-8080}"
         set_panel_port "$port"
+        if [[ "$pufferpanel_version" == "$LEGACY_PUFFERPANEL_VERSION" ]]; then
+            fix_legacy_config_permissions
+        fi
         ok "PufferPanel web port set to $port."
     else
         fail "PufferPanel installed without its expected configuration file."
@@ -441,7 +468,7 @@ main() {
 
     create_admin
     systemctl enable --now pufferpanel
-    verify_pufferpanel_installation
+    verify_pufferpanel_installation "$pufferpanel_version"
     ok "PufferPanel is enabled and running."
     printf '\n  Open the panel at http://SERVER_IP:%s\n' "${port:-8080}"
 }

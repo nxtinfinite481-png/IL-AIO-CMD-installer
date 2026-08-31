@@ -6,6 +6,8 @@ readonly CONFIG_FILE="/etc/pufferpanel/config.json"
 readonly INSTALLER="${BASH_SOURCE[0]%/*}/install.sh"
 readonly SERVICE_OVERRIDE_DIR="/etc/systemd/system/pufferpanel.service.d"
 readonly SERVICE_OVERRIDE_FILE="$SERVICE_OVERRIDE_DIR/10-infinite-labs-legacy.conf"
+readonly PUFFERPANEL_USER="pufferpanel"
+readonly PUFFERPANEL_GROUP="pufferpanel"
 readonly REPOSITORY_SOURCE="/etc/apt/sources.list.d/pufferpanel_pufferpanel.list"
 readonly REPOSITORY_KEYRING="/etc/apt/keyrings/pufferpanel_pufferpanel-archive-keyring.gpg"
 readonly LEGACY_REPOSITORY_KEY="/etc/apt/trusted.gpg.d/pufferpanel_pufferpanel.gpg"
@@ -103,6 +105,17 @@ print(host or "not configured")
 PY
 }
 
+fix_config_permissions() {
+    if ! getent passwd "$PUFFERPANEL_USER" >/dev/null 2>&1 ||
+        ! getent group "$PUFFERPANEL_GROUP" >/dev/null 2>&1; then
+        status_msg ERR "The PufferPanel service user/group is missing."
+        return 1
+    fi
+
+    chown "$PUFFERPANEL_USER:$PUFFERPANEL_GROUP" "$CONFIG_FILE"
+    chmod 0640 "$CONFIG_FILE"
+}
+
 set_panel_port() {
     local port="$1"
     if ! [[ "$port" =~ ^[0-9]+$ ]] || ((port < 1024 || port > 65535)); then
@@ -150,6 +163,7 @@ with tempfile.NamedTemporaryFile(
 os.chmod(temporary_path, mode)
 os.replace(temporary_path, config_path)
 PY
+    fix_config_permissions
 }
 
 configure_panel() {
