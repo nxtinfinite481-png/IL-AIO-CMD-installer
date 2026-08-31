@@ -5,6 +5,9 @@ set -Eeuo pipefail
 readonly CONFIG_FILE="/etc/pufferpanel/config.json"
 readonly REPOSITORY_SCRIPT_URL="https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh"
 readonly LEGACY_PUFFERPANEL_VERSION="2.6.3"
+readonly LEGACY_PUFFERPANEL_PACKAGE_URL="https://packagecloud.io/pufferpanel/pufferpanel/packages/debian/buster/pufferpanel_2.6.3_amd64.deb/download.deb?distro_version_id=150"
+readonly LEGACY_PUFFERPANEL_PACKAGE_SHA256="a45af6d30a0abbe11de06d82807e3c182433b4fee596b28419dc13297d3b7e31"
+readonly LEGACY_MIN_GLIBC_VERSION="2.28"
 readonly MODERN_PUFFERPANEL_VERSION="3.0.9"
 readonly MODERN_MIN_GLIBC_VERSION="2.34"
 
@@ -127,6 +130,91 @@ verify_package_available() {
         fail "Refusing to fall back to an unpinned or incompatible package."
         return 1
     fi
+}
+
+verify_legacy_package() {
+    local package_path="$1"
+    local glibc_version="$2"
+    local package_name
+    local package_version
+    local package_architecture
+    local binary_path
+    local required_glibc
+
+    if ! printf '%s  %s\n' "$LEGACY_PUFFERPANEL_PACKAGE_SHA256" "$package_path" |
+        sha256sum --check --status -; then
+        fail "The downloaded PufferPanel ${LEGACY_PUFFERPANEL_VERSION} package failed SHA256 verification."
+        return 1
+    fi
+
+    package_name="$(dpkg-deb -f "$package_path" Package)"
+    package_version="$(dpkg-deb -f "$package_path" Version)"
+    package_architecture="$(dpkg-deb -f "$package_path" Architecture)"
+    if [[ "$package_name" != "pufferpanel" ||
+        "$package_version" != "$LEGACY_PUFFERPANEL_VERSION" ||
+        "$package_architecture" != "amd64" ]]; then
+        fail "The downloaded package metadata does not match PufferPanel ${LEGACY_PUFFERPANEL_VERSION} amd64."
+        return 1
+    fi
+
+    if ! command -v readelf >/dev/null 2>&1; then
+        fail "readelf is required to verify the legacy PufferPanel runtime."
+        return 1
+    fi
+
+    binary_path="$(mktemp)"
+    if ! dpkg-deb --fsys-tarfile "$package_path" |
+        tar -xOf - ./usr/sbin/pufferpanel >"$binary_path"; then
+        rm -f -- "$binary_path"
+        fail "Could not extract the legacy PufferPanel binary for verification."
+        return 1
+    fi
+
+    required_glibc="$(
+        readelf --version-info "$binary_path" 2>/dev/null |
+            grep -oE 'GLIBC_[0-9]+\.[0-9]+' |
+            sort -Vu |
+            tail -n 1 || true
+    )"
+    if [[ ! "$required_glibc" =~ ^GLIBC_[0-9]+\.[0-9]+$ ]]; then
+        rm -f -- "$binary_path"
+        fail "Could not determine the legacy PufferPanel binary GLIBC requirement."
+        return 1
+    fi
+    required_glibc="${required_glibc#GLIBC_}"
+
+    if ! version_at_least "$glibc_version" "$required_glibc"; then
+        rm -f -- "$binary_path"
+        fail "PufferPanel ${LEGACY_PUFFERPANEL_VERSION} requires GLIBC ${required_glibc}, but this host has GLIBC ${glibc_version}."
+        return 1
+    fi
+
+    if ! version_at_least "$glibc_version" "$LEGACY_MIN_GLIBC_VERSION"; then
+        rm -f -- "$binary_path"
+        fail "PufferPanel ${LEGACY_PUFFERPANEL_VERSION} requires at least GLIBC ${LEGACY_MIN_GLIBC_VERSION}; refusing an incompatible installation."
+        return 1
+    fi
+
+    rm -f -- "$binary_path"
+    info "Verified PufferPanel ${package_version} amd64 package and GLIBC requirement ${required_glibc}."
+}
+
+install_legacy_package() {
+    local glibc_version="$1"
+    local package_path
+    package_path="$(mktemp --suffix=.deb)"
+    trap 'rm -f -- "$package_path"' RETURN
+
+    info "Downloading the verified PufferPanel ${LEGACY_PUFFERPANEL_VERSION} Debian package."
+    if ! curl --fail --silent --show-error --location --retry 3 --connect-timeout 20 \
+        "$LEGACY_PUFFERPANEL_PACKAGE_URL" --output "$package_path"; then
+        fail "Could not download the pinned PufferPanel ${LEGACY_PUFFERPANEL_VERSION} package."
+        return 1
+    fi
+
+    verify_legacy_package "$package_path" "$glibc_version"
+    info "Installing PufferPanel ${LEGACY_PUFFERPANEL_VERSION} from the verified local package."
+    dpkg --install "$package_path"
 }
 
 verify_pufferpanel_installation() {
@@ -278,19 +366,23 @@ main() {
         info "GLIBC meets the ${MODERN_PUFFERPANEL_VERSION} requirement; selecting PufferPanel ${pufferpanel_version}."
     fi
 
-    info "Installing repository prerequisites."
+    info "Installing installer prerequisites."
     apt-get update -y
-    apt-get install -y ca-certificates curl gnupg python3 git wget
+    apt-get install -y binutils ca-certificates curl gnupg python3 git wget
 
     recover_partial_installation
 
-    info "Configuring the official PufferPanel package repository."
-    install_repository
-    apt-get update -y
+    if [[ "$pufferpanel_version" == "$LEGACY_PUFFERPANEL_VERSION" ]]; then
+        install_legacy_package "$glibc_version"
+    else
+        info "Configuring the official PufferPanel package repository."
+        install_repository
+        apt-get update -y
 
-    verify_package_available "$pufferpanel_version"
-    info "Installing PufferPanel ${pufferpanel_version}."
-    apt-get install -y "pufferpanel=${pufferpanel_version}"
+        verify_package_available "$pufferpanel_version"
+        info "Installing PufferPanel ${pufferpanel_version}."
+        apt-get install -y "pufferpanel=${pufferpanel_version}"
+    fi
 
     if [[ -f "$CONFIG_FILE" ]]; then
         local port
